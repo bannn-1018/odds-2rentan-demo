@@ -1,0 +1,246 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=5, user-scalable=yes">
+<title>競技場カレンダー</title>
+<style>
+  :root {
+    --ink: #333333;
+    --ink-soft: #999999;
+    --line: #dedede;
+    --cell-line: #e0e0e0;
+    --sat: #318ee4;
+    --sun: #e73c3c;
+    --sat-bg: #eaf4fc;
+    --sun-bg: #fcecec;
+    --th-bg: #f4f4f4;
+    --grade: #9e8837;
+    --grade-light: #d8cfaf;
+    --held: #d0d0d0;
+    --sel: #318fe4;
+    --sel-bg: #eef6fd;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    width: 100%;
+    min-height: 100vh;
+    font-family: "Hiragino Kaku Gothic Pro", "Hiragino Sans", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
+    background: #ffffff;
+    color: var(--ink);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .num { font-variant-numeric: tabular-nums; }
+  .icon { display: inline-flex; }
+  .icon svg { display: block; }
+
+  .sheet {
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sheet-body {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 4px 12px calc(20px + env(safe-area-inset-bottom));
+  }
+  .sheet-note {
+    font-size: 14px;
+    font-weight: 300;
+    color: var(--ink);
+    line-height: 1.5;
+    padding: 12px 4px 4px;
+  }
+
+  /* ---- month switcher ---- */
+  .month-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px 4px;
+  }
+  .month-nav .nav-arrow {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .month-nav .nav-arrow .icon { width: 14px; height: 14px; }
+  .select-wrap { position: relative; flex: 1; max-width: 150px; }
+  .select-wrap select {
+    width: 100%;
+    height: 44px;
+    padding: 8px 34px 8px 16px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #ffffff;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+    -webkit-appearance: none;
+    appearance: none;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  }
+  .select-wrap .caret {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 12px;
+    height: 12px;
+    color: var(--ink);
+    pointer-events: none;
+  }
+
+  /* ---- calendar ---- */
+  .calendar { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  .calendar th {
+    height: 40px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink);
+    background: var(--th-bg);
+    border: 1px solid var(--cell-line);
+  }
+  .calendar th.sat { color: var(--sat); background: var(--sat-bg); }
+  .calendar th.sun { color: var(--sun); background: var(--sun-bg); }
+  .calendar td {
+    height: 74px;
+    vertical-align: top;
+    border: 1px solid var(--cell-line);
+    padding: 4px;
+  }
+  .day-cell {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .day-cell .d-num {
+    align-self: flex-start;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.1;
+  }
+  .day-cell.sat .d-num { color: var(--sat); }
+  .day-cell.sun .d-num { color: var(--sun); }
+  td.selected { outline: 2px solid var(--sel); outline-offset: -2px; background: var(--sel-bg); }
+  .cal-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #ffffff;
+    line-height: 1.2;
+  }
+  .cal-badge.grade { background: var(--grade); }
+  .cal-badge.grade-light { background: var(--grade-light); }
+  .cal-badge.held { background: var(--held); }
+</style>
+
+<div class="sheet">
+  <div class="sheet-body">
+    <div class="month-nav">
+      <button type="button" class="nav-arrow" aria-label="前の月">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.03 0.67C10.82 0.67 10.61 0.75 10.46 0.9L3.93 7.43C3.77 7.58 3.67 7.78 3.67 7.99C3.67 8.21 3.77 8.41 3.93 8.57L10.48 15.1C10.79 15.41 11.3 15.41 11.61 15.1L12.09 14.62C12.25 14.47 12.33 14.27 12.33 14.05C12.33 13.84 12.25 13.64 12.09 13.49L6.61 8L12.09 2.51C12.24 2.36 12.32 2.16 12.32 1.95C12.32 1.73 12.24 1.53 12.09 1.38L11.6 0.9C11.45 0.75 11.25 0.67 11.03 0.67Z" fill="currentColor"/></svg></span>
+      </button>
+
+      <div class="select-wrap">
+        <select id="yearSelect">
+          <option>2024年</option>
+          <option selected>2025年</option>
+          <option>2026年</option>
+        </select>
+        <span class="caret icon"><svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 8.5L1.5 4L2.56 2.94L6 6.38L9.44 2.94L10.5 4L6 8.5Z" fill="currentColor"/></svg></span>
+      </div>
+
+      <div class="select-wrap">
+        <select id="monthSelect"></select>
+        <span class="caret icon"><svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 8.5L1.5 4L2.56 2.94L6 6.38L9.44 2.94L10.5 4L6 8.5Z" fill="currentColor"/></svg></span>
+      </div>
+
+      <button type="button" class="nav-arrow" aria-label="次の月">
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.4 0.9L3.91 1.38C3.76 1.53 3.68 1.73 3.68 1.95C3.68 2.16 3.76 2.36 3.91 2.51L9.39 7.99L3.91 13.48C3.75 13.63 3.67 13.83 3.67 14.05C3.67 14.26 3.75 14.46 3.91 14.61L4.39 15.09C4.7 15.41 5.21 15.41 5.52 15.09L12.07 8.56C12.23 8.41 12.33 8.21 12.33 7.99C12.33 7.77 12.23 7.57 12.07 7.43L5.55 0.9C5.39 0.75 5.19 0.67 4.97 0.67C4.76 0.67 4.55 0.75 4.41 0.9H4.4Z" fill="currentColor"/></svg></span>
+      </button>
+    </div>
+
+    <table class="calendar">
+      <thead>
+        <tr>
+          <th>月</th><th>火</th><th>水</th><th>木</th><th>金</th>
+          <th class="sat">土</th><th class="sun">日</th>
+        </tr>
+      </thead>
+      <tbody id="calBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  // ---- title from ?track= ----
+  var params = new URLSearchParams(location.search);
+  var track = params.get('track') || '盛岡';
+  document.title = track + ' カレンダー';
+
+  // month select options
+  var monthSel = document.getElementById('monthSelect');
+  for (var m = 1; m <= 12; m++) {
+    var opt = document.createElement('option');
+    opt.textContent = m + '月';
+    if (m === 3) opt.selected = true;
+    monthSel.appendChild(opt);
+  }
+
+  // ---- mock data for March 2025 (matching the design) ----
+  var LEADING_EMPTY = 6;      // day 1 sits on Sunday of the first week
+  var DAYS_IN_MONTH = 31;
+  var SELECTED = 12;
+  var badges = {};
+  [1, 8, 9].forEach(function (d) { badges[d] = 'grade-light'; });
+  [12, 18, 24, 29].forEach(function (d) { badges[d] = 'grade'; });
+  [3, 4, 5, 7, 19, 26, 27].forEach(function (d) { badges[d] = 'held'; });
+
+  var BADGE_LABEL = { 'grade': '重賞', 'grade-light': '重賞', 'held': '開催' };
+
+  function cellHTML(day) {
+    if (day == null) return '<td></td>';
+    var pos = LEADING_EMPTY + (day - 1);
+    var col = pos % 7;                       // 0=Mon ... 5=Sat, 6=Sun
+    var dayClass = col === 5 ? ' sat' : (col === 6 ? ' sun' : '');
+    var selClass = day === SELECTED ? ' selected' : '';
+    var badge = '';
+    if (badges[day]) {
+      badge = '<span class="cal-badge ' + badges[day] + '">' + BADGE_LABEL[badges[day]] + '</span>';
+    }
+    return '<td class="' + selClass.trim() + '">' +
+      '<div class="day-cell' + dayClass + '">' +
+        '<span class="d-num num">' + day + '</span>' + badge +
+      '</div>' +
+    '</td>';
+  }
+
+  var cells = [];
+  for (var i = 0; i < LEADING_EMPTY; i++) cells.push(null);
+  for (var d = 1; d <= DAYS_IN_MONTH; d++) cells.push(d);
+  while (cells.length % 7 !== 0) cells.push(null);
+
+  var body = document.getElementById('calBody');
+  var html = '';
+  for (var r = 0; r < cells.length; r += 7) {
+    html += '<tr>';
+    for (var c = 0; c < 7; c++) html += cellHTML(cells[r + c]);
+    html += '</tr>';
+  }
+  body.innerHTML = html;
+</script>
