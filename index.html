@@ -1,6 +1,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=5, user-scalable=yes">
-<title>オッズ投票 馬連（高配当順）</title>
+<title>金沢 11R 出走表・オッズ</title>
 <style>
   :root {
     --ink: #333333;
@@ -10,6 +10,7 @@
     --nav-bg: #333333;
     --row-hi: #eaf9f0;
     --th-bg: #f4f4f4;
+    --link: #2c73c9;
     --badge-outline: #999999;
     --badge-gray: #4f4f4f;
     --badge-blue: #4a8ede;
@@ -19,13 +20,25 @@
     --race-teal: #0e6b5c;
     --race-green: #1a9f5c;
     --sale-red: #e2231d;
+    --cancel-bg: #d9d9d9;
+    /* finish-position row tints */
+    --fin1-bg: #ffdfdf;
+    --fin2-bg: #cfe5ff;
+    --fin3-bg: #d6f9e4;
+    --fin1-fg: #e2231d;
+    --fin2-fg: #2c73c9;
+    --fin3-fg: #1a9f5c;
+    /* frame (枠) colors */
+    --waku3: #e2231d;
+    --waku4: #4a8ede;
+    --waku5: #fcc539;
+    --waku6: #3f9d65;
+    --waku7: #f0872b;
+    --waku8: #ec7ba6;
   }
 
   * { box-sizing: border-box; }
-  html {
-    -webkit-text-size-adjust: 100%;
-    text-size-adjust: 100%;
-  }
+  html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
   body {
     margin: 0;
     width: 100%;
@@ -37,141 +50,15 @@
     text-size-adjust: 100%;
   }
   .num { font-family: "SF Pro Text", -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic Pro", sans-serif; font-variant-numeric: tabular-nums; }
-
-  .screen {
-    width: 100%;
-    background: #ffffff;
-  }
-
+  .screen { width: 100%; background: #ffffff; padding-bottom: 24px; }
+  body.show-cart .screen { padding-bottom: 76px; }
   .icon { display: inline-flex; }
   .icon svg { display: block; }
 
-  /* ---- race info header ---- */
-  .race-header {
-    padding: 14px;
-    border-bottom: 1px solid var(--line);
-  }
-  .race-header-grid {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    column-gap: 14px;
-    row-gap: 8px;
-  }
-  .race-no {
-    grid-column: 1;
-    grid-row: 1;
-    align-self: start;
-    background: var(--race-green);
-    color: #ffffff;
-    font-weight: 700;
-    font-size: 20px;
-    border-radius: 8px;
-    padding: 10px 14px;
-    text-align: center;
-  }
-  .race-title-row {
-    grid-column: 2;
-    grid-row: 1;
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-  }
-  .race-title {
-    flex: 1;
-    min-width: 0;
-    font-size: 17px;
-    font-weight: 700;
-    line-height: 1.4;
-    color: var(--ink);
-  }
-  .race-tags { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
-  .tag-grade {
-    background: #a8934a;
-    color: #ffffff;
-    font-size: 13px;
-    font-weight: 700;
-    padding: 4px 8px;
-    border-radius: 6px;
-  }
-  .tag-weather {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    border-radius: 6px;
-    background: #f2a13a;
-    font-size: 15px;
-  }
-  .sale-badge {
-    grid-column: 1;
-    grid-row: 2;
-    align-self: start;
-    width: fit-content;
-    background: var(--sale-red);
-    color: #ffffff;
-    font-size: 13px;
-    font-weight: 700;
-    padding: 5px 10px;
-    border-radius: 6px;
-  }
-  .race-meta-line1 { grid-column: 2; grid-row: 2; font-size: 14.5px; color: var(--ink); }
-  .sale-deadline {
-    grid-column: 1;
-    grid-row: 3;
-    align-self: start;
-    width: fit-content;
-    background: #ffffff;
-    border: 1.5px solid var(--sale-red);
-    color: var(--sale-red);
-    font-size: 12.5px;
-    font-weight: 700;
-    padding: 3px 8px;
-    border-radius: 6px;
-  }
-  .race-meta-line2 { grid-column: 2; grid-row: 3; font-size: 14.5px; color: var(--ink); }
-  .race-meta-line2 .close-time { color: var(--sale-red); font-weight: 700; }
-
-  /* ---- race number tabs ---- */
-  .race-tabs {
-    display: none;
-    gap: 8px;
-    padding: 10px 12px;
-    overflow-x: auto;
-    border-bottom: 1px solid var(--line);
-    -webkit-overflow-scrolling: touch;
-  }
-  .race-tab {
-    flex-shrink: 0;
-    min-width: 60px;
-    text-align: center;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 6px 10px;
-    background: #ffffff;
-  }
-  .race-tab .r-no { font-weight: 700; font-size: 14px; color: var(--ink); }
-  .race-tab .r-status { font-size: 10px; color: var(--ink-soft); margin-top: 2px; }
-  .race-tab.active { background: var(--race-green); border-color: var(--race-green); }
-  .race-tab.active .r-no,
-  .race-tab.active .r-status { color: #ffffff; }
-  .race-tab.done { opacity: 0.55; }
-  .race-tab.all {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 11px;
-    font-weight: 700;
-    line-height: 1.3;
-    color: var(--ink);
-  }
-
-  /* ---- mini sticky header (shown once the race header scrolls out) ---- */
+  /* ---- mini sticky header ---- */
   .mini-header {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
+    top: 0; left: 0; right: 0;
     z-index: 30;
     display: flex;
     align-items: center;
@@ -187,175 +74,389 @@
   .mini-header.visible { transform: translateY(0); }
   .mini-header .icon { width: 20px; height: 20px; color: var(--ink-soft); flex-shrink: 0; }
   .mini-header .mini-body {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    align-items: baseline;
-    gap: 14px;
-    overflow: hidden;
-    white-space: nowrap;
+    flex: 1; min-width: 0;
+    display: flex; align-items: baseline; gap: 14px;
+    overflow: hidden; white-space: nowrap;
   }
   .mini-header .mini-name { font-size: 15px; font-weight: 700; color: var(--ink); flex-shrink: 0; }
   .mini-header .mini-status { font-size: 13px; color: var(--ink); flex-shrink: 0; }
   .mini-header .mini-post { font-size: 13px; color: var(--ink); flex-shrink: 0; }
   .mini-header .mini-close { font-size: 13px; font-weight: 700; color: var(--sale-red); flex-shrink: 0; }
 
-  /* ---- content nav (出馬表/オッズ/予想/結果) ---- */
-  .content-nav {
-    display: flex;
-    background: var(--nav-bg);
+  /* ---- race info header ---- */
+  .race-header { padding: 14px; border-bottom: 1px solid var(--line); }
+  .race-header-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 14px;
+    row-gap: 8px;
   }
+  .race-no {
+    grid-column: 1; grid-row: 1;
+    align-self: start;
+    background: var(--race-green);
+    color: #ffffff;
+    font-weight: 700; font-size: 20px;
+    border-radius: 8px;
+    padding: 10px 14px;
+    text-align: center;
+  }
+  .race-title-row { grid-column: 2; grid-row: 1; display: flex; align-items: flex-start; gap: 8px; }
+  .race-title { flex: 1; min-width: 0; font-size: 17px; font-weight: 700; line-height: 1.4; color: var(--ink); }
+  .race-tags { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+  .tag-grade { background: #a8934a; color: #ffffff; font-size: 13px; font-weight: 700; padding: 4px 8px; border-radius: 6px; }
+  .tag-weather {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; border-radius: 6px; background: #f2a13a; font-size: 15px;
+  }
+  .sale-badge {
+    grid-column: 1; grid-row: 2;
+    align-self: start; width: fit-content;
+    background: var(--sale-red); color: #ffffff;
+    font-size: 13px; font-weight: 700; padding: 5px 10px; border-radius: 6px;
+  }
+  .race-meta-line1 { grid-column: 2; grid-row: 2; font-size: 14.5px; color: var(--ink); }
+  .sale-deadline {
+    grid-column: 1; grid-row: 3;
+    align-self: start; width: fit-content;
+    background: #ffffff; border: 1.5px solid var(--sale-red); color: var(--sale-red);
+    font-size: 12.5px; font-weight: 700; padding: 3px 8px; border-radius: 6px;
+  }
+  .race-meta-line2 { grid-column: 2; grid-row: 3; font-size: 14.5px; color: var(--ink); }
+  .race-meta-line2 .close-time { color: var(--sale-red); font-weight: 700; }
+
+  /* ---- race number tabs ---- */
+  .race-tabs {
+    display: flex; gap: 8px; padding: 10px 12px;
+    overflow-x: auto; border-bottom: 1px solid var(--line);
+    -webkit-overflow-scrolling: touch;
+  }
+  .race-tab {
+    flex-shrink: 0; min-width: 60px; text-align: center;
+    border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; background: #ffffff;
+  }
+  .race-tab .r-no { font-weight: 700; font-size: 14px; color: var(--ink); }
+  .race-tab .r-status { font-size: 10px; color: var(--ink-soft); margin-top: 2px; }
+  .race-tab.active { background: var(--race-green); border-color: var(--race-green); }
+  .race-tab.active .r-no, .race-tab.active .r-status { color: #ffffff; }
+  .race-tab.done { opacity: 0.55; }
+  .race-tab.all {
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; line-height: 1.3; color: var(--ink);
+  }
+
+  /* ---- content nav (出走表/オッズ/予想/照会・結果) ---- */
+  .content-nav { display: flex; background: var(--nav-bg); }
   .content-nav .nav-item {
     flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    padding: 4px 11px 6px;
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    padding: 4px 8px 6px;
     color: var(--ink-soft);
     border-bottom: 2px solid transparent;
+    background: transparent; border-left: none; border-right: none; border-top: none;
+    cursor: pointer;
   }
   .content-nav .nav-item .icon { width: 20px; height: 20px; color: var(--ink-soft); }
   .content-nav .nav-item span { font-size: 10px; font-weight: 600; line-height: 1.2; }
   .content-nav .nav-item.active { color: #ffffff; border-bottom-color: #ffffff; }
   .content-nav .nav-item.active .icon { color: #ffffff; }
 
-  /* ---- bet-type tabs (1行目) ---- */
+  /* ---- panels ---- */
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  .sub-panel { display: none; }
+  .sub-panel.active { display: block; }
+
+  /* placeholder panels */
+  .placeholder { padding: 60px 20px; text-align: center; color: var(--ink-soft); font-size: 14px; }
+
+  /* ---- sub tabs (基本情報 / 前5走 / 前5走(縦)) ---- */
+  .sub-tabs {
+    display: flex; align-items: center; padding: 10px 12px; gap: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .sub-tabs button {
+    border: none; background: transparent; border-radius: 18px;
+    padding: 7px 16px; font-size: 13px; font-weight: 600; color: var(--ink);
+    white-space: nowrap; cursor: pointer;
+  }
+  .sub-tabs button.active { background: #333333; color: #ffffff; }
+  .sub-divider { width: 1px; height: 18px; background: var(--line); margin: 0 6px; flex-shrink: 0; }
+
+  /* ==========================================================
+     出走表 > 基本情報 (horizontal horse detail table)
+     ========================================================== */
+  .horse-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; border-bottom: 1px solid var(--line); }
+  table.horse { border-collapse: collapse; white-space: nowrap; font-size: 12px; }
+  table.horse th, table.horse td { border: 1px solid var(--line); vertical-align: top; padding: 6px 8px; }
+  table.horse thead th {
+    background: var(--th-bg); font-size: 11px; font-weight: 700; color: var(--ink);
+    text-align: center; vertical-align: middle; line-height: 1.35;
+    position: sticky; top: 0; z-index: 1;
+  }
+  .col-waku  { width: 34px; min-width: 34px; }
+  .col-num   { width: 34px; min-width: 34px; }
+  .col-name  { width: 158px; min-width: 158px; white-space: normal; }
+  .col-odds  { width: 76px;  min-width: 76px; }
+  .col-mark  { width: 52px;  min-width: 52px; }
+  .col-tai   { width: 62px;  min-width: 62px; }
+  .col-rate  { width: 60px;  min-width: 60px; }
+  .col-res   { width: 116px; min-width: 116px; }
+  .col-cond  { width: 132px; min-width: 132px; }
+  .col-train { width: 74px;  min-width: 74px; }
+  .col-blood { width: 158px; min-width: 158px; white-space: normal; }
+  td.waku { text-align: center; vertical-align: middle; font-weight: 700; font-size: 14px; color: #ffffff; background: #ffffff; }
+  td.waku.w1 { color: #333333; background: #ffffff; }
+  td.waku.w2 { background: #333333; }
+  td.waku.w3 { background: var(--waku3); }
+  td.waku.w4 { background: var(--waku4); }
+  td.waku.w5 { background: var(--waku5); color: #333333; }
+  td.waku.w6 { background: var(--waku6); }
+  td.waku.w7 { background: var(--waku7); }
+  td.waku.w8 { background: var(--waku8); }
+  td.cell-num { text-align: center; vertical-align: middle; font-weight: 700; font-size: 14px; }
+  .horse-name { display: flex; align-items: center; gap: 2px; font-size: 14px; font-weight: 700; color: var(--ink); }
+  .horse-name .chev { width: 10px; height: 10px; color: var(--ink-soft); flex-shrink: 0; }
+  .horse-sub { font-size: 11px; color: var(--ink); margin-top: 3px; }
+  .horse-jockey { font-size: 12px; color: var(--link); margin-top: 3px; }
+  td.cell-odds { text-align: center; vertical-align: middle; }
+  .pop { font-size: 11px; color: var(--ink); }
+  .odds { font-size: 15px; font-weight: 700; color: var(--ink); margin-top: 2px; }
+  .odds.hot { color: var(--odds-red); }
+  .cancel { font-size: 14px; font-weight: 700; color: var(--sale-red); }
+  td.cell-mark { text-align: center; vertical-align: middle; font-size: 22px; font-weight: 700; color: var(--ink); }
+  td.cell-tai { text-align: center; vertical-align: middle; }
+  .cell-tai .tw { font-size: 13px; }
+  .cell-tai .tw-sep { display: block; width: 1px; height: 8px; background: var(--cell-border); margin: 2px auto; }
+  td.cell-rate { text-align: center; vertical-align: middle; font-size: 13px; }
+  .stat-line { display: flex; gap: 6px; line-height: 1.6; }
+  .stat-line .lb { color: var(--ink-soft); width: 14px; flex-shrink: 0; }
+  .cond-line { line-height: 1.6; }
+  td.cell-train { text-align: center; vertical-align: middle; }
+  .cell-train .tn { color: var(--link); font-size: 13px; }
+  .cell-train .tb { font-size: 12px; color: var(--ink); margin-top: 2px; }
+  .blood-line { line-height: 1.55; font-size: 12px; }
+  .blood-line.muted { color: var(--ink-soft); }
+  tr.cancelled td { background: var(--cancel-bg); }
+  tr.cancelled td.waku { background: var(--cancel-bg); color: var(--ink-soft); }
+
+  .section-title { font-size: 16px; font-weight: 700; color: var(--ink); padding: 20px 14px 10px; }
+  .record-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 0 14px 4px; }
+  table.record { border-collapse: collapse; white-space: nowrap; font-size: 13px; min-width: 100%; }
+  table.record th, table.record td { border: 1px solid var(--line); padding: 8px 12px; text-align: center; }
+  table.record thead th { background: var(--th-bg); font-weight: 700; font-size: 12px; }
+  table.record td.rec-name { color: var(--link); }
+  .col-rec-date { min-width: 96px; }
+  .col-rec-name { min-width: 150px; }
+  .ref-list { padding: 0 14px; }
+  .ref-row { display: grid; grid-template-columns: 130px 1fr; gap: 10px; align-items: start; padding: 14px 0; border-bottom: 1px solid var(--line); }
+  .ref-row:first-child { border-top: 1px solid var(--line); }
+  .ref-label { font-size: 13px; color: var(--ink); }
+  .ref-items { display: flex; flex-direction: column; gap: 12px; }
+  .ref-item { display: flex; align-items: center; gap: 10px; }
+  .num-badge {
+    width: 26px; height: 26px; border-radius: 4px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: #ffffff; flex-shrink: 0;
+  }
+  .num-badge.w1 { background: #ffffff; color: #333333; border: 1px solid var(--cell-border); }
+  .num-badge.w2 { background: #333333; }
+  .num-badge.w3 { background: var(--waku3); }
+  .num-badge.w4 { background: var(--waku4); }
+  .num-badge.w5 { background: var(--waku5); color: #333333; }
+  .num-badge.w6 { background: var(--waku6); }
+  .num-badge.w7 { background: var(--waku7); }
+  .num-badge.w8 { background: var(--waku8); }
+  .ref-text .rt-name { font-size: 14px; color: var(--ink); }
+  .ref-text .rt-note { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+
+  /* shared footer actions (reload + notify) */
+  .foot-actions { padding: 22px 14px 8px; }
+  .reload-link {
+    width: 100%;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    background: transparent; border: none; padding: 4px 0 20px; cursor: pointer;
+  }
+  .reload-link .icon { width: 22px; height: 22px; color: var(--ink); }
+  .reload-link span { font-size: 13px; font-weight: 600; color: var(--ink); }
+  .notify-row { display: flex; align-items: center; gap: 12px; }
+  .toggle { width: 44px; height: 26px; border-radius: 13px; background: #cfcfcf; position: relative; flex-shrink: 0; }
+  .toggle::after {
+    content: ""; position: absolute; top: 2px; left: 2px; width: 22px; height: 22px;
+    border-radius: 50%; background: #ffffff; box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  }
+  .notify-row span { font-size: 13px; color: var(--ink); }
+
+  /* ==========================================================
+     出走表 > 前5走(縦)  (Previous 5 races — vertical)
+     ========================================================== */
+  .p5-card { border-bottom: 8px solid #efefef; }
+  .p5-row { display: flex; }
+  .p5-head { background: var(--th-bg); border-bottom: 1px solid var(--cell-border); }
+  .p5-head > div {
+    padding: 6px 8px; font-size: 12px; font-weight: 700; color: var(--ink);
+    border-right: 1px solid var(--cell-border);
+  }
+  .p5-c-waku { width: 42px; min-width: 42px; text-align: center; }
+  .p5-c-uma  { width: 44px; min-width: 44px; text-align: center; }
+  .p5-c-name { flex: 1; }
+  .p5-label { width: 86px; min-width: 86px; }
+
+  /* horse info row */
+  .p5-horse { border-bottom: 1px solid var(--cell-border); }
+  .p5-horse .waku {
+    width: 42px; min-width: 42px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 15px; color: #ffffff;
+    border-right: 1px solid var(--cell-border);
+  }
+  .p5-horse .waku.w1 { color: #333333; background: #ffffff; }
+  .p5-horse .waku.w2 { background: #333333; }
+  .p5-horse .waku.w3 { background: var(--waku3); }
+  .p5-horse .waku.w4 { background: var(--waku4); }
+  .p5-horse .waku.w5 { background: var(--waku5); color: #333333; }
+  .p5-horse .waku.w6 { background: var(--waku6); }
+  .p5-horse .waku.w7 { background: var(--waku7); }
+  .p5-horse .waku.w8 { background: var(--waku8); }
+  .p5-horse .uma {
+    width: 44px; min-width: 44px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 15px; color: var(--ink);
+    border-right: 1px solid var(--cell-border);
+  }
+  .p5-horse .hinfo { flex: 1; min-width: 0; padding: 8px 10px; }
+  .p5-hname { display: flex; align-items: center; gap: 3px; font-size: 16px; font-weight: 700; color: var(--ink); }
+  .p5-hname .chev { width: 11px; height: 11px; color: var(--ink-soft); flex-shrink: 0; }
+  .p5-hsub { font-size: 12px; color: var(--ink-soft); margin-top: 3px; }
+  .p5-hjockey { font-size: 13px; color: var(--link); margin-top: 2px; }
+  .p5-hjockey .cancel-j { color: var(--ink-soft); }
+
+  /* 成績 row */
+  .p5-stat { border-bottom: 1px solid var(--cell-border); }
+  .p5-stat .p5-label {
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; color: var(--ink); border-right: 1px solid var(--cell-border);
+  }
+  .p5-stat .col {
+    flex: 1; min-width: 0; padding: 7px 10px; font-size: 13px; line-height: 1.6; white-space: nowrap;
+  }
+  .p5-stat .col + .col { border-left: 1px solid var(--cell-border); }
+  .p5-stat .st { display: flex; gap: 6px; }
+  .p5-stat .st .lb { color: var(--ink-soft); flex-shrink: 0; }
+
+  /* race rows */
+  .p5-race { border-bottom: 1px solid var(--cell-border); }
+  .p5-race:last-child { border-bottom: none; }
+  .p5-race .p5-label {
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; color: var(--ink); border-right: 1px solid var(--cell-border);
+  }
+  .p5-race .p5-date {
+    width: 86px; min-width: 86px; padding: 7px 8px;
+    border-right: 1px solid var(--cell-border); line-height: 1.5;
+  }
+  .p5-race .fin { font-size: 15px; font-weight: 700; color: var(--ink); }
+  .p5-race .d-line { font-size: 12px; color: var(--ink); }
+  .p5-race .p5-main { flex: 1; min-width: 0; padding: 7px 10px; }
+  .p5-race .m-name { display: flex; align-items: flex-start; gap: 4px; }
+  .p5-race .m-name .nm { flex: 1; min-width: 0; font-size: 15px; font-weight: 700; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .p5-race .m-name .chev { width: 12px; height: 12px; color: var(--ink-soft); flex-shrink: 0; margin-top: 3px; }
+  .p5-race .m-time { font-size: 16px; font-weight: 700; color: var(--ink); margin-top: 1px; }
+  .p5-race .m-time .agari { color: var(--ink); }
+  .p5-race .m-time .agari.g { color: var(--fin3-fg); }
+  .p5-race .m-time .agari.b { color: var(--fin2-fg); }
+  .p5-race .m-time .flag { color: var(--ink); font-weight: 700; margin-left: 2px; }
+  .p5-race .m-detail { font-size: 12px; color: var(--ink-soft); margin-top: 4px; line-height: 1.5; }
+  .p5-race .m-winner { font-size: 12px; color: var(--ink-soft); }
+  /* finish-position tints */
+  .p5-race.fin1 { background: var(--fin1-bg); }
+  .p5-race.fin2 { background: var(--fin2-bg); }
+  .p5-race.fin3 { background: var(--fin3-bg); }
+  .p5-race.fin1 .fin { color: var(--fin1-fg); }
+  .p5-race.fin2 .fin { color: var(--fin2-fg); }
+  .p5-race.fin3 .fin { color: var(--fin3-fg); }
+  .p5-race.fin1 .p5-label, .p5-race.fin1 .p5-date,
+  .p5-race.fin2 .p5-label, .p5-race.fin2 .p5-date,
+  .p5-race.fin3 .p5-label, .p5-race.fin3 .p5-date { border-right-color: rgba(0,0,0,0.12); }
+
+  /* floating vertical horse pager */
+  .hpager {
+    position: fixed;
+    right: 8px; top: 45%;
+    z-index: 25;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+  }
+  .hpager button {
+    width: 46px; height: 46px; border-radius: 6px; border: none;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.25); cursor: pointer;
+  }
+  .hpager .hp-up { background: #d9d9d9; }
+  .hpager .hp-up .icon { color: #ffffff; }
+  .hpager .hp-down { background: #333333; }
+  .hpager .hp-down .icon { color: #ffffff; }
+  .hpager button:disabled { opacity: 1; cursor: default; }
+  .hpager .hp-up:disabled { background: #e2e2e2; }
+  .hpager .icon { width: 18px; height: 18px; }
+  .hpager .hp-num {
+    width: 46px; height: 40px; border-radius: 6px; background: #ffffff;
+    border: 1px solid var(--cell-border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 700; color: var(--ink);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  }
+
+  /* ==========================================================
+     オッズ (馬連 高配当順)
+     ========================================================== */
   .bettype-tabs {
-    display: flex;
-    align-items: stretch;
-    background: #ffffff;
-    border-radius: 6px;
-    padding: 2px;
-    margin: 8px 12px 0;
+    display: flex; align-items: stretch; background: #ffffff;
+    border-radius: 6px; padding: 2px; margin: 8px 12px 0;
   }
   .bettype-tabs button {
-    flex: 1;
-    min-width: 0;
-    border: none;
-    background: transparent;
-    border-radius: 4px;
-    padding: 4px 2px;
-    font-size: 10px;
-    font-weight: 600;
-    line-height: 1.2;
-    color: var(--ink);
-    height: 36px;
+    flex: 1; min-width: 0; border: none; background: transparent; border-radius: 4px;
+    padding: 4px 2px; font-size: 10px; font-weight: 600; line-height: 1.2; color: var(--ink); height: 36px; cursor: pointer;
   }
   .bettype-tabs button.active { background: #333333; color: #ffffff; }
   .bettype-divider { width: 1px; background: var(--line); align-self: stretch; margin: 8px 0; flex-shrink: 0; }
-
-  /* ---- sort tabs (2行目) ---- */
-  .sort-tabs {
-    display: flex;
-    gap: 4px;
-    background: #ffffff;
-    border-radius: 20px;
-    padding: 2px;
-    margin: 8px 12px 0;
-  }
+  .sort-tabs { display: flex; gap: 4px; background: #ffffff; border-radius: 20px; padding: 2px; margin: 8px 12px 0; }
   .sort-tabs button {
-    flex: 1;
-    border: none;
-    background: transparent;
-    border-radius: 20px;
-    padding: 4px;
-    height: 28px;
-    font-size: 10px;
-    font-weight: 600;
-    color: var(--ink);
+    flex: 1; border: none; background: transparent; border-radius: 20px; padding: 4px; height: 28px;
+    font-size: 10px; font-weight: 600; color: var(--ink); cursor: pointer;
   }
   .sort-tabs button.active { background: #333333; color: #ffffff; }
-
-  /* ---- filter row ---- */
-  .filter-row {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 8px;
-    padding: 12px 12px 8px;
-  }
+  .filter-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; padding: 12px 12px 8px; }
   .filter-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    border: 1px solid #333333;
-    border-radius: 4px;
-    padding: 6px 8px 6px 6px;
-    background: #ffffff;
+    display: inline-flex; align-items: center; gap: 4px;
+    border: 1px solid #333333; border-radius: 4px; padding: 6px 8px 6px 6px; background: #ffffff;
   }
-  .filter-chip .checkbox {
-    position: relative;
-    width: 20px;
-    height: 20px;
-    border-radius: 4px;
-    background: #eeeeee;
-    border: 1px solid var(--line);
-    flex-shrink: 0;
-  }
-  .filter-chip .checkbox .icon {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 10px;
-    height: 10px;
-    color: #999999;
-  }
+  .filter-chip .checkbox { position: relative; width: 20px; height: 20px; border-radius: 4px; background: #eeeeee; border: 1px solid var(--line); flex-shrink: 0; }
+  .filter-chip .checkbox .icon { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 10px; height: 10px; color: #999999; }
   .filter-chip span { font-size: 10px; color: var(--ink); white-space: nowrap; }
   .updated-at { font-size: 12px; color: var(--ink); font-weight: 300; }
-
-  /* ---- odds table ---- */
-  .odds-tables {
-    display: flex;
-    gap: 8px;
-    padding: 1px 12px;
-  }
+  .odds-tables { display: flex; gap: 8px; padding: 1px 12px; }
   .odds-table { flex: 1; min-width: 0; border: 1px solid var(--cell-border); }
   .odds-tr { display: flex; }
   .odds-tr + .odds-tr { margin-top: 1px; }
   .odds-th {
-    width: 26px;
-    min-width: 26px;
-    max-width: 26px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--th-bg);
-    border-top: 1px solid var(--cell-border);
-    border-right: 1px solid var(--cell-border);
-    border-bottom: 1px solid var(--cell-border);
+    width: 26px; min-width: 26px; max-width: 26px;
+    display: flex; align-items: center; justify-content: center; background: var(--th-bg);
+    border-top: 1px solid var(--cell-border); border-right: 1px solid var(--cell-border); border-bottom: 1px solid var(--cell-border);
   }
   .odds-tr:first-child .odds-th { border-top: none; }
   .odds-th.hi { background: var(--row-hi); }
   .odds-th span { font-size: 10px; font-weight: 700; color: var(--ink); }
   .odds-td {
-    flex: 1;
-    min-width: 0;
-    min-height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 4px;
-    padding: 4px 6px;
-    background: #ffffff;
-    border-right: 1px solid var(--cell-border);
-    border-bottom: 1px solid var(--cell-border);
+    flex: 1; min-width: 0; min-height: 40px;
+    display: flex; align-items: center; justify-content: space-between; gap: 4px; padding: 4px 6px; background: #ffffff;
+    border-right: 1px solid var(--cell-border); border-bottom: 1px solid var(--cell-border);
   }
   .odds-td.hi { background: var(--row-hi); }
   .badges { display: flex; align-items: center; gap: 2px; }
   .badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 20px;
-    height: 20px;
-    border-radius: 4px;
-    font-size: 11px;
-    font-weight: 700;
-    background: #ffffff;
-    border: 1px solid var(--badge-outline);
-    color: var(--ink);
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 20px; height: 20px; border-radius: 4px; font-size: 11px; font-weight: 700;
+    background: #ffffff; border: 1px solid var(--badge-outline); color: var(--ink);
   }
   .badge.gray { background: var(--badge-gray); border-color: var(--badge-gray); color: #ffffff; }
   .badge.blue { background: var(--badge-blue); border-color: var(--badge-blue); color: #ffffff; }
@@ -364,122 +465,40 @@
   .sep { width: 8px; height: 8px; color: var(--ink); flex-shrink: 0; }
   .odds-val { font-size: 13px; font-weight: 700; color: var(--ink); white-space: nowrap; }
   .odds-val.hot { color: var(--odds-red); }
-
-  /* ---- action row ---- */
-  .action-row {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 12px;
-    padding: 12px 12px;
-  }
+  .action-row { display: flex; align-items: center; justify-content: flex-end; gap: 12px; padding: 12px 12px; }
   .action-row button {
-    border: 1px solid #333333;
-    background: #ffffff;
-    color: var(--ink);
-    border-radius: 4px;
-    font-size: 10px;
-    font-weight: 600;
-    padding: 8px 12px;
-    height: 28px;
-    display: flex;
-    align-items: center;
+    border: 1px solid #333333; background: #ffffff; color: var(--ink); border-radius: 4px;
+    font-size: 10px; font-weight: 600; padding: 8px 12px; height: 28px; display: flex; align-items: center; cursor: pointer;
   }
-
-  /* ---- pager ---- */
-  .pager {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 32px;
-    padding: 6px 0 20px;
-  }
+  .pager { display: flex; align-items: center; justify-content: center; gap: 32px; padding: 6px 0 20px; }
   .pager .icon { width: 16px; height: 16px; color: var(--ink); }
   .pager select {
-    width: 80px;
-    height: 40px;
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    padding: 8px;
-    font-size: 12px;
-    color: var(--ink);
-    background: #ffffff;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    text-align: center;
+    width: 80px; height: 40px; border: 1px solid var(--line); border-radius: 6px; padding: 8px;
+    font-size: 12px; color: var(--ink); background: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.1); text-align: center;
   }
 
-  /* ---- reload link ---- */
-  .reload-link {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    padding: 12px 0 28px;
-  }
-  .reload-link .icon { width: 24px; height: 24px; color: var(--ink); }
-  .reload-link span { font-size: 12px; font-weight: 600; color: var(--ink); }
-
-  /* ---- content padding so the last rows aren't hidden behind the fixed cart bar ---- */
-  .screen { padding-bottom: 76px; }
-
-  /* ---- sticky cart bar (footer/parts/追従ボタン) ---- */
+  /* sticky cart bar — only shown while オッズ panel is active */
   .cart-bar {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 20;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 12px;
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+    display: flex; align-items: center; gap: 10px; padding: 8px 12px;
     background: rgba(255, 255, 255, 0.9);
-    -webkit-backdrop-filter: blur(1.5px);
-    backdrop-filter: blur(1.5px);
-    border-bottom: 1px solid #eeeeee;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    -webkit-backdrop-filter: blur(1.5px); backdrop-filter: blur(1.5px);
+    border-bottom: 1px solid #eeeeee; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     padding-bottom: calc(8px + env(safe-area-inset-bottom));
   }
-  .cart-bar .cart-info {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-  .cart-bar .cart-heading {
-    display: flex;
-    gap: 4px;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--ink);
-    line-height: 1.2;
-  }
+  .cart-bar .cart-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+  .cart-bar .cart-heading { display: flex; gap: 4px; font-size: 12px; font-weight: 600; color: var(--ink); line-height: 1.2; }
   .cart-bar .cart-range { font-size: 10px; font-weight: 600; color: var(--ink-soft); }
   .cart-bar .cart-actions { display: flex; gap: 8px; flex-shrink: 0; }
-  .cart-bar .btn-save,
-  .cart-bar .btn-amount {
-    height: 40px;
-    min-width: 106px;
-    padding: 10px 25px;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: 600;
-    white-space: nowrap;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  .cart-bar .btn-save, .cart-bar .btn-amount {
+    height: 40px; min-width: 106px; padding: 10px 25px; border-radius: 6px;
+    font-size: 12px; font-weight: 600; white-space: nowrap; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25); cursor: pointer;
   }
-  .cart-bar .btn-save {
-    background: #ffffff;
-    border: 1px solid #e7750c;
-    color: #e7750c;
-  }
-  .cart-bar .btn-amount {
-    background: #e7750c;
-    border: none;
-    color: #ffffff;
-  }
+  .cart-bar .btn-save { background: #ffffff; border: 1px solid #e7750c; color: #e7750c; }
+  .cart-bar .btn-amount { background: #e7750c; border: none; color: #ffffff; }
 </style>
 
+<!-- ===== mini sticky header ===== -->
 <div class="mini-header" id="miniHeader">
   <span class="icon"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.0333 0.666667C10.82 0.666667 10.6133 0.746667 10.46 0.9L3.92667 7.42667C3.77333 7.58 3.66667 7.78 3.66667 7.99333C3.66667 8.21333 3.77333 8.41333 3.92667 8.56667L10.48 15.1C10.7933 15.4133 11.3 15.4133 11.6133 15.1L12.0933 14.62C12.2467 14.4667 12.3267 14.2667 12.3267 14.0533C12.3267 13.84 12.2467 13.64 12.0933 13.4867L6.60667 8L12.0867 2.51333C12.24 2.36 12.32 2.16 12.32 1.94667C12.32 1.73333 12.24 1.53333 12.0867 1.38L11.6 0.9C11.4467 0.746667 11.2467 0.666667 11.0333 0.666667Z" fill="currentColor"/></svg></span>
   <div class="mini-body">
@@ -492,6 +511,7 @@
 </div>
 
 <div class="screen">
+  <!-- ===== shared race info header ===== -->
   <div class="race-header" id="raceHeader">
     <div class="race-header-grid">
       <span class="race-no">11R</span>
@@ -509,163 +529,591 @@
     </div>
   </div>
 
+  <!-- ===== race number tabs ===== -->
   <nav class="race-tabs" id="raceTabs"></nav>
 
-  <nav class="content-nav">
-    <div class="nav-item">
+  <!-- ===== content nav ===== -->
+  <nav class="content-nav" id="contentNav">
+    <button class="nav-item active" data-tab="shutuba">
       <span class="icon"><svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M17.47 3.5H2.53C1.68 3.5 1 4.18 1 5.03V15.24C1 16.08 1.68 16.77 2.53 16.77H17.47C18.31 16.77 19 16.09 19 15.24V5.03C19 4.19 18.32 3.5 17.47 3.5ZM6.3 13.72C6.3 13.89 6.16 14.03 5.99 14.03H3.72C3.55 14.03 3.41 13.89 3.41 13.72V11.45C3.41 11.28 3.55 11.14 3.72 11.14H5.99C6.16 11.14 6.3 11.28 6.3 11.45V13.72ZM6.3 8.81C6.3 8.98 6.16 9.12 5.99 9.12H3.72C3.55 9.12 3.41 8.98 3.41 8.81V6.54C3.41 6.37 3.55 6.23 3.72 6.23H5.99C6.16 6.23 6.3 6.37 6.3 6.54V8.81ZM13.84 13.34H8.21C7.8 13.34 7.46 13 7.46 12.59C7.46 12.18 7.8 11.84 8.21 11.84H13.84C14.25 11.84 14.59 12.18 14.59 12.59C14.59 13 14.25 13.34 13.84 13.34ZM16.59 8.43H8.21C7.8 8.43 7.46 8.09 7.46 7.68C7.46 7.27 7.8 6.93 8.21 6.93H16.59C17 6.93 17.34 7.27 17.34 7.68C17.34 8.09 17 8.43 16.59 8.43Z" fill="currentColor"/></svg></span>
-      <span>出馬表</span>
-    </div>
-    <div class="nav-item active">
+      <span>出走表</span>
+    </button>
+    <button class="nav-item" data-tab="odds">
       <span class="icon"><svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 13.2002C8.27614 13.2002 8.5 13.4241 8.5 13.7002V16.6797C8.5 16.9558 8.27614 17.1797 8 17.1797H2C1.72386 17.1797 1.5 16.9558 1.5 16.6797V13.7002C1.5 13.4241 1.72386 13.2002 2 13.2002H8Z" fill="currentColor"/><path d="M13 7.84961C13.276 7.84961 13.4998 8.07364 13.5 8.34961V11.3301C13.4999 11.6062 13.2761 11.8301 13 11.8301H2C1.72389 11.8301 1.50006 11.6062 1.5 11.3301V8.34961C1.5002 8.07364 1.72398 7.84961 2 7.84961H13Z" fill="currentColor"/><path d="M18 2.5C18.2761 2.5 18.5 2.72386 18.5 3V5.98047C18.4997 6.2564 18.276 6.48047 18 6.48047H2C1.72401 6.48047 1.50025 6.2564 1.5 5.98047V3C1.5 2.72386 1.72386 2.5 2 2.5H18Z" fill="currentColor"/></svg></span>
       <span>オッズ</span>
-    </div>
-    <div class="nav-item">
+    </button>
+    <button class="nav-item" data-tab="yosou">
       <span class="icon"><svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18.7527 3.6777L16.7603 3.46503C16.6389 3.4549 16.5377 3.35363 16.5276 3.23211L16.3152 1.23707C16.295 1.01427 16.0219 0.923128 15.8702 1.07503L12.391 4.55876C12.3303 4.61952 12.3101 4.69041 12.3202 4.77143L12.5225 6.65507L9.43767 9.74383C9.20504 9.97675 9.20504 10.3413 9.43767 10.5743C9.67029 10.8072 10.0344 10.8072 10.267 10.5743L13.3518 7.48549L15.233 7.68803C15.3139 7.68803 15.3847 7.66778 15.4454 7.61714L18.9247 4.13342C19.0764 3.98151 18.9853 3.70808 18.773 3.68783L18.7527 3.6777Z" fill="currentColor"/><path d="M11.4504 6.28036L11.3593 5.39931C9.59949 4.82206 7.5969 5.21702 6.19105 6.61456C4.20869 8.59947 4.20869 11.8199 6.19105 13.8048C8.17341 15.7897 11.3897 15.7897 13.372 13.8048C14.7678 12.4073 15.1622 10.392 14.5857 8.62985L13.7058 8.53871L10.9649 11.2831C10.6615 11.587 10.267 11.749 9.83211 11.749C9.39721 11.749 9.00276 11.587 8.69934 11.2831C8.07227 10.6553 8.07227 9.64256 8.69934 9.02481L11.4403 6.28036H11.4504Z" fill="currentColor"/><path d="M16.6389 7.82981C16.9019 8.58934 17.0434 9.38938 17.0434 10.2198C17.0434 12.1642 16.2849 13.9871 14.9195 15.3644C13.544 16.7417 11.7234 17.4911 9.78154 17.4911C7.83964 17.4911 6.01911 16.7315 4.64359 15.3644C1.81165 12.5187 1.81165 7.91083 4.64359 5.07524C6.01911 3.69795 7.83964 2.94855 9.78154 2.94855C10.6109 2.94855 11.4099 3.09033 12.1685 3.35363L13.3316 2.18901C12.1988 1.69279 10.9952 1.42948 9.78154 1.42948C7.53622 1.42948 5.2909 2.29029 3.5715 4.00177C0.142832 7.43485 0.142832 12.9946 3.5715 16.4277C5.2909 18.1493 7.53622 19 9.78154 19C12.0269 19 14.2722 18.1392 15.9916 16.4277C18.6314 13.7845 19.2281 9.87548 17.802 6.65507L16.6389 7.81968V7.82981Z" fill="currentColor"/></svg></span>
       <span>予想</span>
-    </div>
-    <div class="nav-item">
+    </button>
+    <button class="nav-item" data-tab="result">
       <span class="icon"><svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M4.12351 1.75174L4.25347 2.74512H3.32526C3.27663 2.74512 3.22907 2.74975 3.18301 2.75859C2.03627 2.82497 1 3.68789 1 4.90748V5.45933C1 7.83371 2.8649 9.70661 5.22139 10.1438L5.40473 11.5452C5.42573 11.7854 5.57276 11.9942 5.79329 12.0986L8.9624 13.6462V16.4524L6.69616 18.0503C6.27609 18.3426 6.48612 19.0004 7.00071 19.0004H12.9237C13.4383 19.0004 13.6483 18.3426 13.2282 18.0503L10.9624 16.4526V13.6463L14.1317 12.0986C14.3522 11.9942 14.4992 11.7854 14.5202 11.5452L14.7039 10.1418C17.0551 9.70068 18.9141 7.82996 18.9141 5.45933V4.90748C18.9141 3.63764 17.7906 2.75447 16.5888 2.75447H15.6703L15.8015 1.75174C15.8435 1.34455 15.5179 1 15.1083 1H4.80613C4.39656 1 4.08151 1.34455 4.11301 1.75174H4.12351ZM14.912 8.55101L15.474 4.25447H16.5888C17.1302 4.25447 17.4141 4.62466 17.4141 4.90748V5.45933C17.4141 6.83065 16.4073 8.08678 14.912 8.55101ZM3.44404 4.24512H4.4497L5.01347 8.55452C3.51183 8.09315 2.5 6.83413 2.5 5.45933V4.90748C2.5 4.62466 2.78382 4.25447 3.32526 4.25447C3.36568 4.25447 3.40536 4.25127 3.44404 4.24512Z" fill="currentColor"/></svg></span>
-      <span>結果</span>
+      <span>照会・結果</span>
+    </button>
+  </nav>
+
+  <!-- ========================= 出走表 ========================= -->
+  <section class="tab-panel active" data-tab="shutuba">
+    <nav class="sub-tabs" id="subTabs">
+      <button data-sub="basic">基本情報</button>
+      <div class="sub-divider"></div>
+      <button data-sub="prev5">前5走</button>
+      <div class="sub-divider"></div>
+      <button class="active" data-sub="prev5v">前5走(縦)</button>
+    </nav>
+
+    <!-- 基本情報 -->
+    <div class="sub-panel" data-sub="basic">
+      <div class="horse-scroll">
+        <table class="horse">
+          <thead>
+            <tr>
+              <th class="col-waku">枠<br>番</th>
+              <th class="col-num">馬<br>番</th>
+              <th class="col-name">馬名<br>性齢/馬体重<br>騎手名(負担重量)</th>
+              <th class="col-odds">人気<br>単勝オッズ</th>
+              <th class="col-mark">予想印</th>
+              <th class="col-tai">連対時<br>馬体重</th>
+              <th class="col-rate">連対率<br>(生涯)</th>
+              <th class="col-rate">3連対率<br>(生涯)</th>
+              <th class="col-res">成績<br>(生涯)</th>
+              <th class="col-cond">良成績<br>稍重成績<br>重成績<br>不良成績</th>
+              <th class="col-train">調教師<br>(所属)</th>
+              <th class="col-blood">父馬/母馬<br>(母父馬)<br>毛色</th>
+            </tr>
+          </thead>
+          <tbody id="horseBody"></tbody>
+        </table>
+      </div>
+
+      <div class="section-title">コースレコード</div>
+      <div class="record-scroll">
+        <table class="record">
+          <thead>
+            <tr>
+              <th class="col-rec-date">年月日</th>
+              <th>競馬場</th>
+              <th>距離</th>
+              <th class="col-rec-name">馬名</th>
+              <th>騎手</th>
+              <th>タイム</th>
+              <th>馬場</th>
+              <th>斤量</th>
+            </tr>
+          </thead>
+          <tbody id="recordBody"></tbody>
+        </table>
+      </div>
+
+      <div class="section-title">参考情報</div>
+      <div class="ref-list">
+        <div class="ref-row">
+          <div class="ref-label">60日ぶりの出走</div>
+          <div class="ref-items">
+            <div class="ref-item">
+              <span class="num-badge w8">9</span>
+              <div class="ref-text"><div class="rt-name">ナントカテイオー</div><div class="rt-note">61日ぶり出走</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="ref-row">
+          <div class="ref-label">減量騎手</div>
+          <div class="ref-items">
+            <div class="ref-item">
+              <span class="num-badge w6">6</span>
+              <div class="ref-text"><div class="rt-name">鈴木次郎</div><div class="rt-note">☆1kg</div></div>
+            </div>
+            <div class="ref-item">
+              <span class="num-badge w8">10</span>
+              <div class="ref-text"><div class="rt-name">佐藤三郎</div><div class="rt-note">☆1kg</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="ref-row">
+          <div class="ref-label">馬体重増減10kg以上</div>
+          <div class="ref-items">
+            <div class="ref-item">
+              <span class="num-badge w4">4</span>
+              <div class="ref-text"><div class="rt-name">テイオーナントカ</div><div class="rt-note">478kg(+15)</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="foot-actions">
+        <button type="button" class="reload-link">
+          <span class="icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 1C5.93 1 1 5.92 1 12C1 18.08 5.93 23 12 23C18.07 23 23 18.07 23 12C23 5.93 18.08 1 12 1ZM11.87 19C8.21 18.93 5.12 15.88 5.01 12.22C4.92 9.3 6.6 6.79 9.07 5.65C9.69 5.36 10.36 5.16 11.07 5.07V3.96C11.07 3.28 11.84 2.87 12.41 3.26L15.74 5.54C16.24 5.88 16.24 6.61 15.74 6.95L12.41 9.23C11.84 9.62 11.07 9.22 11.07 8.53V7.09C10.33 7.22 9.65 7.52 9.07 7.95C7.81 8.86 7 10.34 7 12C7 15.11 9.85 17.56 13.09 16.89C14.96 16.49 16.48 14.99 16.88 13.12C17.14 11.93 16.97 10.78 16.5 9.81C16.28 9.37 16.4 8.83 16.8 8.55C17.28 8.2 17.99 8.34 18.26 8.88C18.73 9.82 18.99 10.87 18.99 12C18.99 15.91 15.79 19.07 11.86 19H11.87Z" fill="currentColor"/></svg></span>
+          <span>最新情報に更新する</span>
+        </button>
+        <div class="notify-row">
+          <span class="toggle"></span>
+          <span>締切10分前に通知を受け取る</span>
+        </div>
+      </div>
     </div>
-  </nav>
 
-  <nav class="bettype-tabs">
-    <button>単勝/<br>複勝</button>
-    <div class="bettype-divider"></div>
-    <button>枠連</button>
-    <div class="bettype-divider"></div>
-    <button>枠単</button>
-    <div class="bettype-divider"></div>
-    <button class="active">馬連</button>
-    <div class="bettype-divider"></div>
-    <button>馬単</button>
-    <div class="bettype-divider"></div>
-    <button>ワイド</button>
-    <div class="bettype-divider"></div>
-    <button>3連複</button>
-    <div class="bettype-divider"></div>
-    <button>3連単</button>
-  </nav>
+    <!-- 前5走 (placeholder) -->
+    <div class="sub-panel" data-sub="prev5">
+      <div class="placeholder">前5走（横）は準備中です。</div>
+    </div>
 
-  <nav class="sort-tabs">
-    <button>人気順</button>
-    <button>オッズ表</button>
-    <button class="active">高配当順</button>
-    <button>馬から検索</button>
-  </nav>
+    <!-- 前5走(縦) -->
+    <div class="sub-panel active" data-sub="prev5v">
+      <div id="p5List"></div>
 
-  <div class="filter-row">
-    <span class="filter-chip">
-      <span class="checkbox"><span class="icon"><svg viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3.4709 8.38314L0.541737 5.48731C0.379237 5.32481 0.37507 5.06231 0.541737 4.89981L1.12924 4.30814C1.29174 4.14564 1.55424 4.14148 1.71674 4.30814L3.4709 6.04148C3.6334 6.20398 3.8959 6.19981 4.0584 6.04148L8.2959 1.78731C8.4584 1.62481 8.7209 1.62481 8.8834 1.78731L9.4709 2.37481C9.6334 2.53731 9.6334 2.79981 9.4709 2.96231L4.05424 8.37898C3.89174 8.54148 3.62924 8.54148 3.46674 8.37898L3.4709 8.38314Z" fill="currentColor" fill-opacity="0.3"/></svg></span></span>
-      <span>オッズで絞る</span>
-    </span>
-    <span class="updated-at">15:15現在</span>
-  </div>
+      <div class="foot-actions">
+        <button type="button" class="reload-link">
+          <span class="icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 1C5.93 1 1 5.92 1 12C1 18.08 5.93 23 12 23C18.07 23 23 18.07 23 12C23 5.93 18.08 1 12 1ZM11.87 19C8.21 18.93 5.12 15.88 5.01 12.22C4.92 9.3 6.6 6.79 9.07 5.65C9.69 5.36 10.36 5.16 11.07 5.07V3.96C11.07 3.28 11.84 2.87 12.41 3.26L15.74 5.54C16.24 5.88 16.24 6.61 15.74 6.95L12.41 9.23C11.84 9.62 11.07 9.22 11.07 8.53V7.09C10.33 7.22 9.65 7.52 9.07 7.95C7.81 8.86 7 10.34 7 12C7 15.11 9.85 17.56 13.09 16.89C14.96 16.49 16.48 14.99 16.88 13.12C17.14 11.93 16.97 10.78 16.5 9.81C16.28 9.37 16.4 8.83 16.8 8.55C17.28 8.2 17.99 8.34 18.26 8.88C18.73 9.82 18.99 10.87 18.99 12C18.99 15.91 15.79 19.07 11.86 19H11.87Z" fill="currentColor"/></svg></span>
+          <span>最新情報に更新する</span>
+        </button>
+      </div>
 
-  <div class="odds-tables" id="oddsTables"></div>
+      <!-- floating vertical horse pager (only rendered while this sub-panel is active) -->
+      <div class="hpager" id="hpager">
+        <button class="hp-up" id="hpUp" disabled aria-label="前の馬">
+          <span class="icon"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 4.5C8.2 4.5 8.4 4.58 8.55 4.73L15.1 11.28C15.41 11.6 15.41 12.1 15.1 12.41L14.62 12.89C14.31 13.2 13.8 13.2 13.49 12.89L8 7.4L2.51 12.89C2.2 13.2 1.69 13.2 1.38 12.89L0.9 12.41C0.59 12.1 0.59 11.6 0.9 11.28L7.45 4.73C7.6 4.58 7.8 4.5 8 4.5Z" fill="currentColor"/></svg></span>
+        </button>
+        <div class="hp-num num" id="hpNum">1</div>
+        <button class="hp-down" id="hpDown" aria-label="次の馬">
+          <span class="icon"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 11.5C7.8 11.5 7.6 11.42 7.45 11.27L0.9 4.72C0.59 4.4 0.59 3.9 0.9 3.59L1.38 3.11C1.69 2.8 2.2 2.8 2.51 3.11L8 8.6L13.49 3.11C13.8 2.8 14.31 2.8 14.62 3.11L15.1 3.59C15.41 3.9 15.41 4.4 15.1 4.72L8.55 11.27C8.4 11.42 8.2 11.5 8 11.5Z" fill="currentColor"/></svg></span>
+        </button>
+      </div>
+    </div>
+  </section>
 
-  <div class="action-row">
-    <button type="button">クリア</button>
-    <button type="button">ページ内全選択</button>
-  </div>
+  <!-- ========================= オッズ ========================= -->
+  <section class="tab-panel" data-tab="odds">
+    <nav class="bettype-tabs" data-group>
+      <button>単勝/<br>複勝</button>
+      <div class="bettype-divider"></div>
+      <button>枠連</button>
+      <div class="bettype-divider"></div>
+      <button>枠単</button>
+      <div class="bettype-divider"></div>
+      <button class="active">馬連</button>
+      <div class="bettype-divider"></div>
+      <button>馬単</button>
+      <div class="bettype-divider"></div>
+      <button>ワイド</button>
+      <div class="bettype-divider"></div>
+      <button>3連複</button>
+      <div class="bettype-divider"></div>
+      <button>3連単</button>
+    </nav>
 
-  <div class="pager">
-    <span class="icon"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15.2667 0.9L15.7533 1.38C15.9067 1.53333 15.9867 1.73333 15.9867 1.94667C15.9867 2.16 15.9067 2.36 15.7533 2.51333L10.2733 7.99333L15.76 13.48C15.9133 13.6333 15.9933 13.8333 15.9933 14.0467C15.9933 14.26 15.9133 14.46 15.76 14.6133L15.28 15.0933C14.9667 15.4067 14.46 15.4067 14.1467 15.0933L7.59333 8.56C7.44 8.40667 7.33333 8.20667 7.33333 7.99333C7.33333 7.77333 7.44 7.57333 7.59333 7.42667L14.12 0.9C14.2733 0.746667 14.48 0.666667 14.6933 0.666667C14.9067 0.666667 15.1133 0.746667 15.26 0.9H15.2667Z" fill="currentColor"/><path d="M7.93333 0.9L8.42 1.38C8.57333 1.53333 8.65333 1.73333 8.65333 1.94667C8.65333 2.16 8.57333 2.36 8.42 2.51333L2.94 7.99333L8.42667 13.48C8.58 13.6333 8.66 13.8333 8.66 14.0467C8.66 14.26 8.58 14.46 8.42667 14.6133L7.94667 15.0933C7.63333 15.4067 7.12667 15.4067 6.81333 15.0933L0.26 8.56C0.106666 8.40667 0 8.20667 0 7.99333C0 7.77333 0.106666 7.57333 0.26 7.42667L6.78667 0.9C6.94 0.746667 7.14667 0.666667 7.36 0.666667C7.57333 0.666667 7.78 0.746667 7.92667 0.9H7.93333Z" fill="currentColor"/></svg></span>
-    <span class="icon"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.0333 0.666667C10.82 0.666667 10.6133 0.746667 10.46 0.9L3.92667 7.42667C3.77333 7.58 3.66667 7.78 3.66667 7.99333C3.66667 8.21333 3.77333 8.41333 3.92667 8.56667L10.48 15.1C10.7933 15.4133 11.3 15.4133 11.6133 15.1L12.0933 14.62C12.2467 14.4667 12.3267 14.2667 12.3267 14.0533C12.3267 13.84 12.2467 13.64 12.0933 13.4867L6.60667 8L12.0867 2.51333C12.24 2.36 12.32 2.16 12.32 1.94667C12.32 1.73333 12.24 1.53333 12.0867 1.38L11.6 0.9C11.4467 0.746667 11.2467 0.666667 11.0333 0.666667Z" fill="currentColor"/></svg></span>
-    <select>
-      <option>1</option>
-      <option>2</option>
-      <option>3</option>
-    </select>
-    <span class="icon"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.4 0.9L3.91333 1.38C3.76 1.53333 3.68 1.73333 3.68 1.94667C3.68 2.16 3.76 2.36 3.91333 2.51333L9.39333 7.99333L3.90667 13.48C3.75333 13.6333 3.67333 13.8333 3.67333 14.0467C3.67333 14.26 3.75333 14.46 3.90667 14.6133L4.38667 15.0933C4.7 15.4067 5.20667 15.4067 5.52 15.0933L12.0733 8.56C12.2267 8.40667 12.3333 8.20667 12.3333 7.99333C12.3333 7.77333 12.2267 7.57333 12.0733 7.42667L5.54667 0.9C5.39333 0.746667 5.18667 0.666667 4.97333 0.666667C4.76 0.666667 4.55333 0.746667 4.40667 0.9H4.4Z" fill="currentColor"/></svg></span>
-    <span class="icon"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0.726667 0.9L0.24 1.38C0.0866668 1.53333 0.00666682 1.73333 0.00666682 1.94667C0.00666682 2.16 0.0866668 2.36 0.24 2.51333L5.72 7.99333L0.233333 13.48C0.0799999 13.6333 0 13.8333 0 14.0467C0 14.26 0.0799999 14.46 0.233333 14.6133L0.713333 15.0933C1.02667 15.4067 1.53333 15.4067 1.84667 15.0933L8.4 8.56C8.55333 8.40667 8.66 8.20667 8.66 7.99333C8.66 7.77333 8.55333 7.57333 8.4 7.42667L1.87333 0.9C1.72 0.746667 1.51333 0.666667 1.3 0.666667C1.08667 0.666667 0.88 0.746667 0.733333 0.9H0.726667Z" fill="currentColor"/><path d="M8.06 0.9L7.57333 1.38C7.42 1.53333 7.34 1.73333 7.34 1.94667C7.34 2.16 7.42 2.36 7.57333 2.51333L13.0533 7.99333L7.56667 13.48C7.41333 13.6333 7.33333 13.8333 7.33333 14.0467C7.33333 14.26 7.41333 14.46 7.56667 14.6133L8.04667 15.0933C8.36 15.4067 8.86667 15.4067 9.18 15.0933L15.7333 8.56C15.8867 8.40667 15.9933 8.20667 15.9933 7.99333C15.9933 7.77333 15.8867 7.57333 15.7333 7.42667L9.20667 0.9C9.05333 0.746667 8.84667 0.666667 8.63333 0.666667C8.42 0.666667 8.21333 0.746667 8.06667 0.9H8.06Z" fill="currentColor"/></svg></span>
-  </div>
+    <nav class="sort-tabs" data-group>
+      <button>人気順</button>
+      <button>オッズ表</button>
+      <button class="active">高配当順</button>
+      <button>馬から検索</button>
+    </nav>
 
-  <button type="button" class="reload-link">
-    <span class="icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 1C5.93 1 1 5.92 1 12C1 18.08 5.93 23 12 23C18.07 23 23 18.07 23 12C23 5.93 18.08 1 12 1ZM11.87 19C8.21 18.93 5.12 15.88 5.01 12.22C4.92 9.3 6.6 6.79 9.07 5.65C9.69 5.36 10.36 5.16 11.07 5.07V3.96C11.07 3.28 11.84 2.87 12.41 3.26L15.74 5.54C16.24 5.88 16.24 6.61 15.74 6.95L12.41 9.23C11.84 9.62 11.07 9.22 11.07 8.53V7.09C10.33 7.22 9.65 7.52 9.07 7.95C7.81 8.86 7 10.34 7 12C7 15.11 9.85 17.56 13.09 16.89C14.96 16.49 16.48 14.99 16.88 13.12C17.14 11.93 16.97 10.78 16.5 9.81C16.28 9.37 16.4 8.83 16.8 8.55C17.28 8.2 17.99 8.34 18.26 8.88C18.73 9.82 18.99 10.87 18.99 12C18.99 15.91 15.79 19.07 11.86 19H11.87Z" fill="currentColor"/></svg></span>
-    <span>最新情報に更新する</span>
-  </button>
-</div>
+    <div class="filter-row">
+      <span class="filter-chip">
+        <span class="checkbox"><span class="icon"><svg viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3.4709 8.38314L0.541737 5.48731C0.379237 5.32481 0.37507 5.06231 0.541737 4.89981L1.12924 4.30814C1.29174 4.14564 1.55424 4.14148 1.71674 4.30814L3.4709 6.04148C3.6334 6.20398 3.8959 6.19981 4.0584 6.04148L8.2959 1.78731C8.4584 1.62481 8.7209 1.62481 8.8834 1.78731L9.4709 2.37481C9.6334 2.53731 9.6334 2.79981 9.4709 2.96231L4.05424 8.37898C3.89174 8.54148 3.62924 8.54148 3.46674 8.37898L3.4709 8.38314Z" fill="currentColor" fill-opacity="0.3"/></svg></span></span>
+        <span>オッズで絞る</span>
+      </span>
+      <span class="updated-at">15:15現在</span>
+    </div>
 
-<div class="cart-bar">
-  <div class="cart-info">
-    <div class="cart-heading"><span>999通り</span><span>選択中</span></div>
-    <div class="cart-range">9999.9〜9999.9</div>
-  </div>
-  <div class="cart-actions">
-    <button type="button" class="btn-save">買い目を保存</button>
-    <button type="button" class="btn-amount">金額入力へ</button>
-  </div>
+    <div class="odds-tables" id="oddsTables"></div>
+
+    <div class="action-row">
+      <button type="button">クリア</button>
+      <button type="button">ページ内全選択</button>
+    </div>
+
+    <div class="pager">
+      <span class="icon"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15.2667 0.9L15.7533 1.38C15.9067 1.53333 15.9867 1.73333 15.9867 1.94667C15.9867 2.16 15.9067 2.36 15.7533 2.51333L10.2733 7.99333L15.76 13.48C15.9133 13.6333 15.9933 13.8333 15.9933 14.0467C15.9933 14.26 15.9133 14.46 15.76 14.6133L15.28 15.0933C14.9667 15.4067 14.46 15.4067 14.1467 15.0933L7.59333 8.56C7.44 8.40667 7.33333 8.20667 7.33333 7.99333C7.33333 7.77333 7.44 7.57333 7.59333 7.42667L14.12 0.9C14.2733 0.746667 14.48 0.666667 14.6933 0.666667C14.9067 0.666667 15.1133 0.746667 15.26 0.9H15.2667Z" fill="currentColor"/><path d="M7.93333 0.9L8.42 1.38C8.57333 1.53333 8.65333 1.73333 8.65333 1.94667C8.65333 2.16 8.57333 2.36 8.42 2.51333L2.94 7.99333L8.42667 13.48C8.58 13.6333 8.66 13.8333 8.66 14.0467C8.66 14.26 8.58 14.46 8.42667 14.6133L7.94667 15.0933C7.63333 15.4067 7.12667 15.4067 6.81333 15.0933L0.26 8.56C0.106666 8.40667 0 8.20667 0 7.99333C0 7.77333 0.106666 7.57333 0.26 7.42667L6.78667 0.9C6.94 0.746667 7.14667 0.666667 7.36 0.666667C7.57333 0.666667 7.78 0.746667 7.92667 0.9H7.93333Z" fill="currentColor"/></svg></span>
+      <span class="icon"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.0333 0.666667C10.82 0.666667 10.6133 0.746667 10.46 0.9L3.92667 7.42667C3.77333 7.58 3.66667 7.78 3.66667 7.99333C3.66667 8.21333 3.77333 8.41333 3.92667 8.56667L10.48 15.1C10.7933 15.4133 11.3 15.4133 11.6133 15.1L12.0933 14.62C12.2467 14.4667 12.3267 14.2667 12.3267 14.0533C12.3267 13.84 12.2467 13.64 12.0933 13.4867L6.60667 8L12.0867 2.51333C12.24 2.36 12.32 2.16 12.32 1.94667C12.32 1.73333 12.24 1.53333 12.0867 1.38L11.6 0.9C11.4467 0.746667 11.2467 0.666667 11.0333 0.666667Z" fill="currentColor"/></svg></span>
+      <select>
+        <option>1</option>
+        <option>2</option>
+        <option>3</option>
+      </select>
+      <span class="icon"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.4 0.9L3.91333 1.38C3.76 1.53333 3.68 1.73333 3.68 1.94667C3.68 2.16 3.76 2.36 3.91333 2.51333L9.39333 7.99333L3.90667 13.48C3.75333 13.6333 3.67333 13.8333 3.67333 14.0467C3.67333 14.26 3.75333 14.46 3.90667 14.6133L4.38667 15.0933C4.7 15.4067 5.20667 15.4067 5.52 15.0933L12.0733 8.56C12.2267 8.40667 12.3333 8.20667 12.3333 7.99333C12.3333 7.77333 12.2267 7.57333 12.0733 7.42667L5.54667 0.9C5.39333 0.746667 5.18667 0.666667 4.97333 0.666667C4.76 0.666667 4.55333 0.746667 4.40667 0.9H4.4Z" fill="currentColor"/></svg></span>
+      <span class="icon"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0.726667 0.9L0.24 1.38C0.0866668 1.53333 0.00666682 1.73333 0.00666682 1.94667C0.00666682 2.16 0.0866668 2.36 0.24 2.51333L5.72 7.99333L0.233333 13.48C0.0799999 13.6333 0 13.8333 0 14.0467C0 14.26 0.0799999 14.46 0.233333 14.6133L0.713333 15.0933C1.02667 15.4067 1.53333 15.4067 1.84667 15.0933L8.4 8.56C8.55333 8.40667 8.66 8.20667 8.66 7.99333C8.66 7.77333 8.55333 7.57333 8.4 7.42667L1.87333 0.9C1.72 0.746667 1.51333 0.666667 1.3 0.666667C1.08667 0.666667 0.88 0.746667 0.733333 0.9H0.726667Z" fill="currentColor"/><path d="M8.06 0.9L7.57333 1.38C7.42 1.53333 7.34 1.73333 7.34 1.94667C7.34 2.16 7.42 2.36 7.57333 2.51333L13.0533 7.99333L7.56667 13.48C7.41333 13.6333 7.33333 13.8333 7.33333 14.0467C7.33333 14.26 7.41333 14.46 7.56667 14.6133L8.04667 15.0933C8.36 15.4067 8.86667 15.4067 9.18 15.0933L15.7333 8.56C15.8867 8.40667 15.9933 8.20667 15.9933 7.99333C15.9933 7.77333 15.8867 7.57333 15.7333 7.42667L9.20667 0.9C9.05333 0.746667 8.84667 0.666667 8.63333 0.666667C8.42 0.666667 8.21333 0.746667 8.06667 0.9H8.06Z" fill="currentColor"/></svg></span>
+    </div>
+
+    <button type="button" class="reload-link">
+      <span class="icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 1C5.93 1 1 5.92 1 12C1 18.08 5.93 23 12 23C18.07 23 23 18.07 23 12C23 5.93 18.08 1 12 1ZM11.87 19C8.21 18.93 5.12 15.88 5.01 12.22C4.92 9.3 6.6 6.79 9.07 5.65C9.69 5.36 10.36 5.16 11.07 5.07V3.96C11.07 3.28 11.84 2.87 12.41 3.26L15.74 5.54C16.24 5.88 16.24 6.61 15.74 6.95L12.41 9.23C11.84 9.62 11.07 9.22 11.07 8.53V7.09C10.33 7.22 9.65 7.52 9.07 7.95C7.81 8.86 7 10.34 7 12C7 15.11 9.85 17.56 13.09 16.89C14.96 16.49 16.48 14.99 16.88 13.12C17.14 11.93 16.97 10.78 16.5 9.81C16.28 9.37 16.4 8.83 16.8 8.55C17.28 8.2 17.99 8.34 18.26 8.88C18.73 9.82 18.99 10.87 18.99 12C18.99 15.91 15.79 19.07 11.86 19H11.87Z" fill="currentColor"/></svg></span>
+      <span>最新情報に更新する</span>
+    </button>
+
+    <div class="cart-bar">
+      <div class="cart-info">
+        <div class="cart-heading"><span>999通り</span><span>選択中</span></div>
+        <div class="cart-range">9999.9〜9999.9</div>
+      </div>
+      <div class="cart-actions">
+        <button type="button" class="btn-save">買い目を保存</button>
+        <button type="button" class="btn-amount">金額入力へ</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================= 予想 ========================= -->
+  <section class="tab-panel" data-tab="yosou">
+    <div class="placeholder">予想は準備中です。</div>
+  </section>
+
+  <!-- ========================= 照会・結果 ========================= -->
+  <section class="tab-panel" data-tab="result">
+    <div class="placeholder">照会・結果は準備中です。</div>
+  </section>
 </div>
 
 <script>
-  var SEP_SVG = '<svg viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.66667 3.66667C1.66667 3.48257 1.78274 3.33333 1.92593 3.33333H6.07407C6.21726 3.33333 6.33333 3.48257 6.33333 3.66667V4.33333C6.33333 4.51743 6.21726 4.66667 6.07407 4.66667H1.92593C1.78274 4.66667 1.66667 4.51743 1.66667 4.33333V3.66667Z" fill="currentColor"/></svg>';
-
-  function defaultRow(i) {
-    return { i: i, n1: '1', c1: '', n2: '2', c2: 'gray', odds: '48.2', hi: false, hot: false };
-  }
-
-  var rows1to25 = [];
-  for (var i = 1; i <= 25; i++) rows1to25.push(defaultRow(i));
-  rows1to25[0] = { i: 1, n1: '2', c1: 'gray', n2: '4', c2: 'blue', odds: '4.5', hi: false, hot: true };
-  rows1to25[1] = { i: 2, n1: '1', c1: '', n2: '2', c2: 'gray', odds: '9999.0', hi: true, hot: false };
-  rows1to25[2] = { i: 3, n1: '1', c1: '', n2: '2', c2: 'gray', odds: '48.2', hi: true, hot: false };
-  rows1to25[4] = { i: 5, n1: '1', c1: '', n2: '2', c2: 'gray', odds: '4.5', hi: true, hot: true };
-
-  var rows26to50 = [];
-  for (var j = 26; j <= 50; j++) rows26to50.push(defaultRow(j));
-  rows26to50[0] = { i: 26, n1: '5', c1: 'yellow', n2: '6', c2: 'green', odds: '37.1', hi: false, hot: false };
-
-  function rowHTML(r) {
-    return '<div class="odds-tr">' +
-      '<div class="odds-th' + (r.hi ? ' hi' : '') + '"><span class="num">' + r.i + '</span></div>' +
-      '<div class="odds-td' + (r.hi ? ' hi' : '') + '">' +
-        '<div class="badges">' +
-          '<span class="badge' + (r.c1 ? ' ' + r.c1 : '') + '">' + r.n1 + '</span>' +
-          '<span class="sep">' + SEP_SVG + '</span>' +
-          '<span class="badge' + (r.c2 ? ' ' + r.c2 : '') + '">' + r.n2 + '</span>' +
-        '</div>' +
-        '<span class="odds-val num' + (r.hot ? ' hot' : '') + '">' + r.odds + '</span>' +
-      '</div>' +
-    '</div>';
-  }
-
-  var wrap = document.getElementById('oddsTables');
-  var left = document.createElement('div');
-  var right = document.createElement('div');
-  left.className = 'odds-table';
-  right.className = 'odds-table';
-  rows1to25.forEach(function (r) { left.innerHTML += rowHTML(r); });
-  rows26to50.forEach(function (r) { right.innerHTML += rowHTML(r); });
-  wrap.appendChild(left);
-  wrap.appendChild(right);
-
-  // fake race list for the race number tabs (long enough to scroll horizontally)
-  var raceTabs = document.getElementById('raceTabs');
-  for (var raceNo = 1; raceNo <= 12; raceNo++) {
-    var tab = document.createElement('div');
-    var isActive = raceNo === 11;
-    tab.className = 'race-tab' + (isActive ? ' active' : (raceNo < 8 ? ' done' : ''));
-    tab.innerHTML = '<div class="r-no">' + raceNo + 'R</div><div class="r-status">' + (raceNo < 8 ? '発売終了' : '発売中') + '</div>';
-    raceTabs.appendChild(tab);
-  }
-  var allTab = document.createElement('div');
-  allTab.className = 'race-tab all';
-  allTab.innerHTML = '全レース<br>一覧';
-  raceTabs.appendChild(allTab);
-
-  // reveal the mini sticky header once the full race header scrolls past the top
-  var raceHeaderEl = document.getElementById('raceHeader');
-  var miniHeaderEl = document.getElementById('miniHeader');
-  function updateMiniHeader() {
-    var rect = raceHeaderEl.getBoundingClientRect();
-    if (rect.bottom <= 0) {
-      miniHeaderEl.classList.add('visible');
-    } else {
-      miniHeaderEl.classList.remove('visible');
+  /* ===================== shared: race number tabs ===================== */
+  (function () {
+    var raceTabs = document.getElementById('raceTabs');
+    for (var raceNo = 8; raceNo <= 11; raceNo++) {
+      var tab = document.createElement('div');
+      var isActive = raceNo === 11;
+      tab.className = 'race-tab' + (isActive ? ' active' : '');
+      tab.innerHTML = '<div class="r-no">' + raceNo + 'R</div><div class="r-status">発売中</div>';
+      raceTabs.appendChild(tab);
     }
-  }
-  window.addEventListener('scroll', updateMiniHeader, { passive: true });
-  updateMiniHeader();
+    var allTab = document.createElement('div');
+    allTab.className = 'race-tab all';
+    allTab.innerHTML = '全レース<br>一覧';
+    raceTabs.appendChild(allTab);
+  })();
+
+  /* ===================== tab switching ===================== */
+  (function () {
+    var nav = document.getElementById('contentNav');
+    var panels = document.querySelectorAll('.tab-panel');
+    nav.addEventListener('click', function (e) {
+      var item = e.target.closest('.nav-item');
+      if (!item) return;
+      var tab = item.getAttribute('data-tab');
+      nav.querySelectorAll('.nav-item').forEach(function (n) { n.classList.toggle('active', n === item); });
+      panels.forEach(function (p) { p.classList.toggle('active', p.getAttribute('data-tab') === tab); });
+      document.body.classList.toggle('show-cart', tab === 'odds');
+      window.scrollTo(0, 0);
+    });
+
+    var subTabs = document.getElementById('subTabs');
+    var subPanels = document.querySelectorAll('.sub-panel');
+    subTabs.addEventListener('click', function (e) {
+      var btn = e.target.closest('button');
+      if (!btn) return;
+      var sub = btn.getAttribute('data-sub');
+      subTabs.querySelectorAll('button').forEach(function (b) { b.classList.toggle('active', b === btn); });
+      subPanels.forEach(function (p) { p.classList.toggle('active', p.getAttribute('data-sub') === sub); });
+      window.scrollTo(0, 0);
+    });
+
+    // generic single-select button groups (bettype / sort tabs)
+    document.querySelectorAll('[data-group]').forEach(function (group) {
+      group.addEventListener('click', function (e) {
+        var btn = e.target.closest('button');
+        if (!btn) return;
+        group.querySelectorAll('button').forEach(function (b) { b.classList.toggle('active', b === btn); });
+      });
+    });
+  })();
+
+  /* ===================== 出走表 > 基本情報 ===================== */
+  (function () {
+    var CHEV = '<svg class="chev" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.4 0.9L3.91 1.38C3.76 1.53 3.68 1.73 3.68 1.95C3.68 2.16 3.76 2.36 3.91 2.51L9.39 7.99L3.91 13.48C3.75 13.63 3.67 13.83 3.67 14.05C3.67 14.26 3.75 14.46 3.91 14.61L4.39 15.09C4.7 15.41 5.21 15.41 5.52 15.09L12.07 8.56C12.23 8.41 12.33 8.21 12.33 7.99C12.33 7.77 12.23 7.57 12.07 7.43L5.55 0.9C5.39 0.75 5.19 0.67 4.97 0.67C4.76 0.67 4.55 0.75 4.41 0.9H4.4Z" fill="currentColor"/></svg>';
+
+    var starHorse = {
+      name: 'スタールーズベルト', sexAge: '牡7', weight: '489kg(-3)',
+      jockey: '山田太郎', carry: '56.0',
+      pop: '3人気', tai: ['497', '479'], rate2: '13.9%', rate3: '25.0%',
+      res: { all: '1-1-0-6', jou: '1-1-0-4', ta: '0-0-0-2', omo: '99-99-99-99' },
+      cond: { ryo: '0-0-2-20-0', yaya: '0-0-1-3-3', omo: '0-2-1-2-2', furyo: '99-99-99-99-99' },
+      trainer: '調教次', belong: '笠松',
+      sire: 'チチウマメイ', dam: 'ハハウマメイ', damSire: '(スタールーズベルト)', coat: '鹿毛'
+    };
+    function star(over) {
+      var h = {}; for (var k in starHorse) h[k] = starHorse[k];
+      for (var k2 in over) h[k2] = over[k2]; return h;
+    }
+    var horses = [
+      { num: 1, waku: 1, name: 'ネオアマゾネス', sexAge: '牝8', weight: '486kg(-8)',
+        jockey: '筒井勇介', carry: '55.0', pop: '3人気', odds: '34.4', mark: '',
+        tai: ['466', '494'], rate2: '32.9%', rate3: '49.3%',
+        res: { all: '1-1-0-18', jou: '1-1-0-16', ta: '0-0-0-2', omo: '1-0-0-4' },
+        cond: { ryo: '3-9-4-18-34', yaya: '4-1-4-6-15', omo: '3-1-3-9-16', furyo: '3-0-1-4-8' },
+        trainer: '調教次', belong: '笠松',
+        sire: 'オルフェーヴル', dam: 'グラシャスギフト', damSire: "(Giant's Causeway)", coat: '栗毛' },
+      star({ num: 2, waku: 2, odds: '48.2', mark: '◎' }),
+      star({ num: 3, waku: 3, odds: '144.2', mark: '▲' }),
+      star({ num: 4, waku: 4, odds: '2.9', mark: '×', hot: true }),
+      star({ num: 5, waku: 5, odds: '144.2', mark: '' }),
+      star({ num: 6, waku: 6, odds: '3.9', mark: '', hot: true }),
+      star({ num: 7, waku: 7, odds: '58.2', mark: '○' }),
+      star({ num: 8, waku: 7, odds: '', mark: '', cancelled: true }),
+      star({ num: 9, waku: 8, odds: '144.2', mark: '' }),
+      star({ num: 10, waku: 8, odds: '144.2', mark: '注' })
+    ];
+
+    var wakuCount = {};
+    horses.forEach(function (h) { wakuCount[h.waku] = (wakuCount[h.waku] || 0) + 1; });
+    var wakuSeen = {};
+
+    function statBlock(res) {
+      return '<div class="stat-line"><span class="lb">全</span><span class="num">' + res.all + '</span></div>' +
+        '<div class="stat-line"><span class="lb">場</span><span class="num">' + res.jou + '</span></div>' +
+        '<div class="stat-line"><span class="lb">他</span><span class="num">' + res.ta + '</span></div>' +
+        '<div class="stat-line"><span class="lb">重</span><span class="num">' + res.omo + '</span></div>';
+    }
+    function condBlock(c) {
+      return '<div class="cond-line num">' + c.ryo + '</div>' +
+        '<div class="cond-line num">' + c.yaya + '</div>' +
+        '<div class="cond-line num">' + c.omo + '</div>' +
+        '<div class="cond-line num">' + c.furyo + '</div>';
+    }
+    function horseRow(h) {
+      var html = '<tr' + (h.cancelled ? ' class="cancelled"' : '') + '>';
+      if (!wakuSeen[h.waku]) {
+        wakuSeen[h.waku] = true;
+        html += '<td class="waku w' + h.waku + '"' + (wakuCount[h.waku] > 1 ? ' rowspan="' + wakuCount[h.waku] + '"' : '') + '><span class="num">' + h.waku + '</span></td>';
+      }
+      html += '<td class="cell-num"><span class="num">' + h.num + '</span></td>';
+      html += '<td>' +
+        '<div class="horse-name">' + h.name + CHEV + '</div>' +
+        '<div class="horse-sub">' + h.sexAge + '/' + h.weight + '</div>' +
+        '<div class="horse-jockey">' + h.jockey + '(' + h.carry + ')</div>' +
+      '</td>';
+      if (h.cancelled) {
+        html += '<td class="cell-odds"><span class="cancel">取消</span></td>';
+      } else {
+        html += '<td class="cell-odds"><div class="pop">' + h.pop + '</div><div class="odds num' + (h.hot ? ' hot' : '') + '">' + h.odds + '</div></td>';
+      }
+      html += '<td class="cell-mark">' + (h.mark || '') + '</td>';
+      html += '<td class="cell-tai"><span class="tw num">' + h.tai[0] + '</span><span class="tw-sep"></span><span class="tw num">' + h.tai[1] + '</span></td>';
+      html += '<td class="cell-rate num">' + h.rate2 + '</td>';
+      html += '<td class="cell-rate num">' + h.rate3 + '</td>';
+      html += '<td>' + statBlock(h.res) + '</td>';
+      html += '<td>' + condBlock(h.cond) + '</td>';
+      html += '<td class="cell-train"><div class="tn">' + h.trainer + '</div><div class="tb">(' + h.belong + ')</div></td>';
+      html += '<td>' +
+        '<div class="blood-line">' + h.sire + '</div>' +
+        '<div class="blood-line">' + h.dam + '</div>' +
+        '<div class="blood-line muted">' + h.damSire + '</div>' +
+        '<div class="blood-line">' + h.coat + '</div>' +
+      '</td>';
+      html += '</tr>';
+      return html;
+    }
+    var body = document.getElementById('horseBody');
+    horses.forEach(function (h) { body.innerHTML += horseRow(h); });
+
+    var records = [
+      { date: '2025/04/15', track: '名古屋', dist: 'ダ 200',  name: 'スタールーズベルト', jockey: '山田太郎', time: '0:11.9', cond: '良',   carry: '56.0' },
+      { date: '2025/03/20', track: '金沢',   dist: 'ダ 1500', name: 'ネオアマゾネス',       jockey: '筒井勇介', time: '1:34.2', cond: '稍重', carry: '55.0' },
+      { date: '2024/12/10', track: '笠松',   dist: 'ダ 1400', name: 'テイオーナントカ',     jockey: '鈴木次郎', time: '1:27.5', cond: '重',   carry: '54.0' },
+      { date: '2024/10/05', track: '名古屋', dist: 'ダ 1800', name: 'ナントカテイオー',     jockey: '佐藤三郎', time: '1:55.8', cond: '良',   carry: '56.0' },
+      { date: '2024/07/22', track: '金沢',   dist: 'ダ 900',  name: 'スタールーズベルト', jockey: '山田太郎', time: '0:54.3', cond: '不良', carry: '55.0' }
+    ];
+    var recBody = document.getElementById('recordBody');
+    records.forEach(function (r) {
+      recBody.innerHTML += '<tr>' +
+        '<td class="num">' + r.date + '</td>' +
+        '<td>' + r.track + '</td>' +
+        '<td class="num">' + r.dist + '</td>' +
+        '<td class="rec-name">' + r.name + '</td>' +
+        '<td>' + r.jockey + '</td>' +
+        '<td class="num">' + r.time + '</td>' +
+        '<td>' + r.cond + '</td>' +
+        '<td class="num">' + r.carry + '</td>' +
+      '</tr>';
+    });
+  })();
+
+  /* ===================== 出走表 > 前5走(縦) ===================== */
+  (function () {
+    var CHEV = '<span class="chev"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.4 0.9L3.91 1.38C3.76 1.53 3.68 1.73 3.68 1.95C3.68 2.16 3.76 2.36 3.91 2.51L9.39 7.99L3.91 13.48C3.75 13.63 3.67 13.83 3.67 14.05C3.67 14.26 3.75 14.46 3.91 14.61L4.39 15.09C4.7 15.41 5.21 15.41 5.52 15.09L12.07 8.56C12.23 8.41 12.33 8.21 12.33 7.99C12.33 7.77 12.23 7.57 12.07 7.43L5.55 0.9C5.39 0.75 5.19 0.67 4.97 0.67C4.76 0.67 4.55 0.75 4.41 0.9H4.4Z" fill="currentColor"/></svg></span>';
+    var LABELS = ['前走', '2走前', '3走前', '4走前', '5走前'];
+
+    // a reusable "placeholder" past race (matches the mock's repeated rows)
+    function tmplRace(fin, ord, agariColor, flag) {
+      return {
+        fin: fin, ord: ord, date: '22.11.11', venue: '帯広5R', dist: 'ダ 200', cond: '良',
+        name: 'リボン賞3歳上2勝クラスリボン賞3歳…', time: '2:02.7', agari: '38.4',
+        agariColor: agariColor || '', corner: '1-12-11', flag: flag || '',
+        weight: '1036kg', jockey: '山田太郎63.0', field: '10頭3番7人', winner: 'ヤマニンエイドロン', margin: '1.9'
+      };
+    }
+
+    var horses = [
+      {
+        num: 1, waku: 1, name: 'ネオアマゾネス', sexAge: '牝8', weight: '489kg(-3)',
+        jockey: '筒井勇(55.0)', jockey2: '',
+        stat: { all: '8-5-5-46', ta: '8-5-5-45', rate2: '.203', jou: '0-0-0-1', omo: '6-5-3-29', rate3: '.281' },
+        races: [
+          { fin: 2, ord: '2着', date: '25.04.17', venue: '笠松9R', dist: 'ダ 1400', cond: '良',
+            name: 'つつじ特別A3特別', time: '1:30.0', agari: '38.4', agariColor: 'g', corner: '4-3-2', flag: '',
+            weight: '494kg', jockey: '筒井勇55.0', field: '5頭5番2人', winner: 'ラブアンバジョ', margin: '0.1' },
+          { fin: 1, ord: '1着', date: '25.04.02', venue: '帯広9R', dist: 'ダ 1600', cond: '良',
+            name: '苗代桜特別B2特別', time: '1:43.1', agari: '40.8', agariColor: '', corner: '1-1-1', flag: '',
+            weight: '491kg', jockey: '加藤聡55.0', field: '8頭1番6人', winner: 'フェールデレーヴ', margin: '0.4' },
+          { fin: 0, ord: '7着', date: '25.03.07', venue: '笠松11R', dist: 'ダ 1600', cond: '良',
+            name: '養老の滝特別A2特別', time: '1:47.7', agari: '41.4', agariColor: '', corner: '9-8-8', flag: '',
+            weight: '486kg', jockey: '加藤聡54.0', field: '9頭4番9人', winner: 'グスタール', margin: '2.2' },
+          { fin: 3, ord: '3着', date: '25.02.20', venue: '笠松9R', dist: 'ダ 1400', cond: '良',
+            name: 'アネモネ特別A2特別（a）牝馬', time: '1:31.1', agari: '39.7', agariColor: '', corner: '4-2-3', flag: '',
+            weight: '485kg', jockey: '加藤聡54.0', field: '7頭4番3人', winner: 'ニホンピロポート', margin: '0.4' },
+          { fin: 0, ord: '7着', date: '25.01.23', venue: '笠松9R', dist: 'ダ 1600', cond: '良',
+            name: '銀華特別A3特別', time: '1:46.1', agari: '39.5', agariColor: '', corner: '2-5-7', flag: '',
+            weight: '1036kg', jockey: '塚本征54.0', field: '10頭5番6人', winner: 'ヴェッツラー', margin: '2.5' }
+        ]
+      }
+    ];
+
+    // horses 2-10: placeholder blocks (matching the mock), varying frame + finish colour of the top run
+    var wakus = [2, 3, 4, 5, 6, 7, 7, 8, 8];
+    var topFin = [3, 1, 2, 0, 3, 1, 0, 2, 0];
+    for (var i = 0; i < wakus.length; i++) {
+      var num = i + 2;
+      var tf = topFin[i];
+      var topOrd = tf === 0 ? '6着' : tf + '着';
+      horses.push({
+        num: num, waku: wakus[i], name: 'スタールーズベルト', sexAge: '牡7', weight: '489kg(-3)',
+        jockey: '山田太郎(56.0)', jockey2: num === 2 ? '山田太郎(取消) (56.0)' : '',
+        stat: { all: '1-1-0-6', ta: '1-1-0-4', rate2: '.250', jou: '1-1-0-6', omo: '1-1-0-4', rate3: '.250' },
+        races: [
+          tmplRace(tf, topOrd, tf === 2 ? 'b' : (tf === 3 ? 'g' : ''), 'F'),
+          tmplRace(0, '6着'), tmplRace(0, '6着'), tmplRace(0, '6着'), tmplRace(0, '6着')
+        ]
+      });
+    }
+
+    function statRow(s) {
+      return '<div class="p5-row p5-stat">' +
+        '<div class="p5-label">成績</div>' +
+        '<div class="col">' +
+          '<div class="st"><span class="lb">全</span><span class="num">' + s.all + '</span></div>' +
+          '<div class="st"><span class="lb">他</span><span class="num">' + s.ta + '</span></div>' +
+          '<div class="st"><span class="lb">連対率</span><span class="num">' + s.rate2 + '</span></div>' +
+        '</div>' +
+        '<div class="col">' +
+          '<div class="st"><span class="lb">場</span><span class="num">' + s.jou + '</span></div>' +
+          '<div class="st"><span class="lb">重</span><span class="num">' + s.omo + '</span></div>' +
+          '<div class="st"><span class="lb">3連対率</span><span class="num">' + s.rate3 + '</span></div>' +
+        '</div>' +
+      '</div>';
+    }
+
+    function raceRow(label, r) {
+      var finClass = r.fin === 1 ? ' fin1' : r.fin === 2 ? ' fin2' : r.fin === 3 ? ' fin3' : '';
+      var agariCls = r.agariColor === 'g' ? ' g' : r.agariColor === 'b' ? ' b' : '';
+      return '<div class="p5-row p5-race' + finClass + '">' +
+        '<div class="p5-label">' + label + '</div>' +
+        '<div class="p5-date">' +
+          '<div class="fin">' + r.ord + '</div>' +
+          '<div class="d-line num">' + r.date + '</div>' +
+          '<div class="d-line">' + r.venue + '</div>' +
+          '<div class="d-line">' + r.dist + '</div>' +
+          '<div class="d-line">' + r.cond + '</div>' +
+        '</div>' +
+        '<div class="p5-main">' +
+          '<div class="m-name"><span class="nm">' + r.name + '</span>' + CHEV + '</div>' +
+          '<div class="m-time num">' + r.time + '(<span class="agari' + agariCls + '">' + r.agari + '</span>)' + r.corner + (r.flag ? ' <span class="flag">' + r.flag + '</span>' : '') + '</div>' +
+          '<div class="m-detail num">' + r.weight + '/' + r.jockey + '/' + r.field + '</div>' +
+          '<div class="m-winner">' + r.winner + '(' + r.margin + ')</div>' +
+        '</div>' +
+      '</div>';
+    }
+
+    function horseCard(h) {
+      var html = '<div class="p5-card" data-horse="' + h.num + '">';
+      html += '<div class="p5-row p5-head"><div class="p5-c-waku">枠番</div><div class="p5-c-uma">馬番</div><div class="p5-c-name">馬名</div></div>';
+      html += '<div class="p5-row p5-horse">' +
+        '<div class="waku w' + h.waku + '"><span class="num">' + h.waku + '</span></div>' +
+        '<div class="uma"><span class="num">' + h.num + '</span></div>' +
+        '<div class="hinfo">' +
+          '<div class="p5-hname">' + h.name + CHEV + '</div>' +
+          '<div class="p5-hsub">' + h.sexAge + '/' + h.weight + '</div>' +
+          '<div class="p5-hjockey">' + h.jockey + '</div>' +
+          (h.jockey2 ? '<div class="p5-hjockey cancel-j">' + h.jockey2 + '</div>' : '') +
+        '</div>' +
+      '</div>';
+      html += statRow(h.stat);
+      for (var i = 0; i < h.races.length; i++) html += raceRow(LABELS[i], h.races[i]);
+      html += '</div>';
+      return html;
+    }
+
+    var list = document.getElementById('p5List');
+    horses.forEach(function (h) { list.innerHTML += horseCard(h); });
+
+    /* ---- floating vertical horse pager ---- */
+    var cards = list.querySelectorAll('.p5-card');
+    var cur = 0;
+    var hpNum = document.getElementById('hpNum');
+    var hpUp = document.getElementById('hpUp');
+    var hpDown = document.getElementById('hpDown');
+    function sync() {
+      hpNum.textContent = cards[cur].getAttribute('data-horse');
+      hpUp.disabled = cur === 0;
+      hpDown.disabled = cur === cards.length - 1;
+    }
+    function goto(idx) {
+      if (idx < 0 || idx >= cards.length) return;
+      cur = idx;
+      cards[cur].scrollIntoView({ behavior: 'smooth', block: 'start' });
+      sync();
+    }
+    hpUp.addEventListener('click', function () { goto(cur - 1); });
+    hpDown.addEventListener('click', function () { goto(cur + 1); });
+    sync();
+  })();
+
+  /* ===================== オッズ (odds table) ===================== */
+  (function () {
+    var SEP_SVG = '<svg viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.66667 3.66667C1.66667 3.48257 1.78274 3.33333 1.92593 3.33333H6.07407C6.21726 3.33333 6.33333 3.48257 6.33333 3.66667V4.33333C6.33333 4.51743 6.21726 4.66667 6.07407 4.66667H1.92593C1.78274 4.66667 1.66667 4.51743 1.66667 4.33333V3.66667Z" fill="currentColor"/></svg>';
+    function defaultRow(i) { return { i: i, n1: '1', c1: '', n2: '2', c2: 'gray', odds: '48.2', hi: false, hot: false }; }
+
+    var rows1to25 = [];
+    for (var i = 1; i <= 25; i++) rows1to25.push(defaultRow(i));
+    rows1to25[0] = { i: 1, n1: '2', c1: 'gray', n2: '4', c2: 'blue', odds: '4.5', hi: false, hot: true };
+    rows1to25[1] = { i: 2, n1: '1', c1: '', n2: '2', c2: 'gray', odds: '9999.0', hi: true, hot: false };
+    rows1to25[2] = { i: 3, n1: '1', c1: '', n2: '2', c2: 'gray', odds: '48.2', hi: true, hot: false };
+    rows1to25[4] = { i: 5, n1: '1', c1: '', n2: '2', c2: 'gray', odds: '4.5', hi: true, hot: true };
+
+    var rows26to50 = [];
+    for (var j = 26; j <= 50; j++) rows26to50.push(defaultRow(j));
+    rows26to50[0] = { i: 26, n1: '5', c1: 'yellow', n2: '6', c2: 'green', odds: '37.1', hi: false, hot: false };
+
+    function rowHTML(r) {
+      return '<div class="odds-tr">' +
+        '<div class="odds-th' + (r.hi ? ' hi' : '') + '"><span class="num">' + r.i + '</span></div>' +
+        '<div class="odds-td' + (r.hi ? ' hi' : '') + '">' +
+          '<div class="badges">' +
+            '<span class="badge' + (r.c1 ? ' ' + r.c1 : '') + '">' + r.n1 + '</span>' +
+            '<span class="sep">' + SEP_SVG + '</span>' +
+            '<span class="badge' + (r.c2 ? ' ' + r.c2 : '') + '">' + r.n2 + '</span>' +
+          '</div>' +
+          '<span class="odds-val num' + (r.hot ? ' hot' : '') + '">' + r.odds + '</span>' +
+        '</div>' +
+      '</div>';
+    }
+
+    var wrap = document.getElementById('oddsTables');
+    var left = document.createElement('div');
+    var right = document.createElement('div');
+    left.className = 'odds-table';
+    right.className = 'odds-table';
+    rows1to25.forEach(function (r) { left.innerHTML += rowHTML(r); });
+    rows26to50.forEach(function (r) { right.innerHTML += rowHTML(r); });
+    wrap.appendChild(left);
+    wrap.appendChild(right);
+  })();
+
+  /* ===================== mini sticky header ===================== */
+  (function () {
+    var raceHeaderEl = document.getElementById('raceHeader');
+    var miniHeaderEl = document.getElementById('miniHeader');
+    function updateMiniHeader() {
+      var rect = raceHeaderEl.getBoundingClientRect();
+      miniHeaderEl.classList.toggle('visible', rect.bottom <= 0);
+    }
+    window.addEventListener('scroll', updateMiniHeader, { passive: true });
+    updateMiniHeader();
+  })();
 </script>
