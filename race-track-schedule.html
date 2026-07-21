@@ -196,10 +196,21 @@
   var joCode = params.get('joCode') || '';
   document.title = track + ' カレンダー';
 
-  // action: setTitle / payload: { title } — 競技場名を app のヘッダーへ送る。
-  if (window.flutter_inappwebview && window.flutter_inappwebview.callHandler) {
-    window.flutter_inappwebview.callHandler('setTitle', { title: track });
+  // Web→Native 共通ブリッジ。{ action, payload } を JSON 文字列で 'NativeApp' に送る。
+  function postToNative(action, payload) {
+    if (window.flutter_inappwebview && window.flutter_inappwebview.callHandler) {
+      window.flutter_inappwebview.callHandler(
+        'NativeApp',
+        JSON.stringify({ action: action, payload: payload })
+      );
+    } else {
+      // ブラウザ単体表示時のフォールバック（デバッグ用）。
+      console.log('NativeApp', action, payload);
+    }
   }
+
+  // action: setTitle / payload: { title } — 競技場名を app のヘッダーへ送る。
+  postToNative('setTitle', { title: track });
 
   // month select options
   var monthSel = document.getElementById('monthSelect');
@@ -269,13 +280,7 @@
 
   // action: raceDateSelected / payload: { joCode, kaisaibi }
   function notifyRaceDateSelected(day) {
-    var payload = { joCode: joCode, kaisaibi: buildKaisaibi(day) };
-    if (window.flutter_inappwebview && window.flutter_inappwebview.callHandler) {
-      window.flutter_inappwebview.callHandler('raceDateSelected', payload);
-    } else {
-      // ブラウザ単体表示時のフォールバック（デバッグ用）。
-      console.log('raceDateSelected', payload);
-    }
+    postToNative('raceDateSelected', { joCode: joCode, kaisaibi: buildKaisaibi(day) });
   }
 
   // tbody にイベント委譲。開催日セル（data-day 付き）のみ反応する。
