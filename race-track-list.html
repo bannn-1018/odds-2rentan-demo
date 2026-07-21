@@ -94,12 +94,35 @@
   var activeTracks = ['盛岡', '名古屋', '園田', '笠松', '金沢'];
   var otherTracks = ['水沢', '帯広', '姫路', '高知', '開催地名'];
 
+  // 競技場名 → joCode（開催カレンダーへ引き継ぎ、日付選択時に app へ通知する）。
+  // ※ デモ用の値。実データに合わせて調整すること。
+  var TRACK_JO_CODE = {
+    '盛岡': '10',
+    '水沢': '11',
+    '金沢': '22',
+    '笠松': '23',
+    '名古屋': '24',
+    '園田': '27',
+    '姫路': '28',
+    '高知': '31',
+    '帯広': '3',
+    '開催地名': '0'
+  };
+
   function trackHTML(name) {
-    return '<li><a class="track-item" href="race-track-schedule.html?track=' + encodeURIComponent(name) + '">' +
+    var joCode = TRACK_JO_CODE[name] || '';
+    var href = 'race-track-schedule.html?track=' + encodeURIComponent(name) +
+      '&joCode=' + encodeURIComponent(joCode);
+    return '<li><a class="track-item" href="' + href + '">' +
       '<span class="track-name">' + name + '</span>' + CHEVRON +
     '</a></li>';
   }
 
   document.getElementById('activeList').innerHTML = activeTracks.map(trackHTML).join('');
   document.getElementById('otherList').innerHTML = otherTracks.map(trackHTML).join('');
+
+  // 競技場一覧表示中はヘッダーを既定タイトルに戻す（title 省略で app 側が既定へ）。
+  if (window.flutter_inappwebview && window.flutter_inappwebview.callHandler) {
+    window.flutter_inappwebview.callHandler('setTitle', {});
+  }
 </script>

@@ -134,6 +134,8 @@
   }
   .day-cell.sat .d-num { color: var(--sat); }
   .day-cell.sun .d-num { color: var(--sun); }
+  td.clickable { cursor: pointer; }
+  td.clickable:active { background: #f6f6f6; }
   td.selected { outline: 2px solid var(--sel); outline-offset: -2px; background: var(--sel-bg); }
   .cal-badge {
     display: inline-block;
@@ -188,10 +190,16 @@
 </div>
 
 <script>
-  // ---- title from ?track= ----
+  // ---- params from query (?track=, ?joCode=) ----
   var params = new URLSearchParams(location.search);
   var track = params.get('track') || '盛岡';
+  var joCode = params.get('joCode') || '';
   document.title = track + ' カレンダー';
+
+  // action: setTitle / payload: { title } — 競技場名を app のヘッダーへ送る。
+  if (window.flutter_inappwebview && window.flutter_inappwebview.callHandler) {
+    window.flutter_inappwebview.callHandler('setTitle', { title: track });
+  }
 
   // month select options
   var monthSel = document.getElementById('monthSelect');
@@ -223,7 +231,10 @@
     if (badges[day]) {
       badge = '<span class="cal-badge ' + badges[day] + '">' + BADGE_LABEL[badges[day]] + '</span>';
     }
-    return '<td class="' + selClass.trim() + '">' +
+    // 開催日（バッジのある日）のみ選択可能にする。
+    var clickable = badges[day] ? ' data-day="' + day + '"' : '';
+    var tdClass = (selClass + (badges[day] ? ' clickable' : '')).trim();
+    return '<td class="' + tdClass + '"' + clickable + '>' +
       '<div class="day-cell' + dayClass + '">' +
         '<span class="d-num num">' + day + '</span>' + badge +
       '</div>' +
@@ -243,4 +254,38 @@
     html += '</tr>';
   }
   body.innerHTML = html;
+
+  // ---- 日付選択 → app へ通知（JS ブリッジ: raceDateSelected） ----
+  var yearSel = document.getElementById('yearSelect');
+
+  function pad2(n) { return (n < 10 ? '0' : '') + n; }
+
+  // 選択中の年/月と日から kaisaibi(YYYYMMDD) を組み立てる。
+  function buildKaisaibi(day) {
+    var year = parseInt(yearSel.value, 10);            // "2025年" → 2025
+    var month = parseInt(monthSel.value, 10);          // "3月"   → 3
+    return String(year) + pad2(month) + pad2(day);
+  }
+
+  // action: raceDateSelected / payload: { joCode, kaisaibi }
+  function notifyRaceDateSelected(day) {
+    var payload = { joCode: joCode, kaisaibi: buildKaisaibi(day) };
+    if (window.flutter_inappwebview && window.flutter_inappwebview.callHandler) {
+      window.flutter_inappwebview.callHandler('raceDateSelected', payload);
+    } else {
+      // ブラウザ単体表示時のフォールバック（デバッグ用）。
+      console.log('raceDateSelected', payload);
+    }
+  }
+
+  // tbody にイベント委譲。開催日セル（data-day 付き）のみ反応する。
+  body.addEventListener('click', function (e) {
+    var td = e.target.closest('td[data-day]');
+    if (!td) return;
+    // 選択ハイライトを更新。
+    var prev = body.querySelector('td.selected');
+    if (prev) prev.classList.remove('selected');
+    td.classList.add('selected');
+    notifyRaceDateSelected(parseInt(td.getAttribute('data-day'), 10));
+  });
 </script>
