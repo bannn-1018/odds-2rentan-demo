@@ -190,10 +190,21 @@
 </div>
 
 <script>
-  // ---- params from query (?track=, ?joCode=) ----
+  /* 開催カレンダー（SpRaceCalendar.do）。
+     入力パラメータ: targetDate(YYYYMM) / targetDay / selectDate(YYYYMMDD) / joCode。
+     日付選択時に app へ raceDateSelected を通知する。 */
   var params = new URLSearchParams(location.search);
-  var track = params.get('track') || '盛岡';
   var joCode = params.get('joCode') || '';
+  var targetDate = params.get('targetDate') || '';   // YYYYMM（表示する年月）
+  var targetDay = params.get('targetDay') || '';      // 日（フォーカス日）
+  var selectDate = params.get('selectDate') || '';    // YYYYMMDD（選択中の日付）
+
+  // joCode → 競技場名（ヘッダータイトル用）。※ デモ用の逆引き表。
+  var JO_CODE_TRACK = {
+    '10': '盛岡', '11': '水沢', '22': '金沢', '23': '笠松', '24': '名古屋',
+    '27': '園田', '28': '姫路', '31': '高知', '3': '帯広', '0': '開催地名'
+  };
+  var track = JO_CODE_TRACK[joCode] || '競技場';
   document.title = track + ' カレンダー';
 
   // Web→Native 共通ブリッジ。{ action, payload } を JSON 文字列で 'NativeApp' に送る。
@@ -201,30 +212,43 @@
     if (window.flutter_inappwebview && window.flutter_inappwebview.callHandler) {
       window.flutter_inappwebview.callHandler(
         'NativeApp',
-        JSON.stringify({ action: action, payload: payload })
+        JSON.stringify({ action: action, payload: payload || {} })
       );
     } else {
-      // ブラウザ単体表示時のフォールバック（デバッグ用）。
-      console.log('NativeApp', action, payload);
+      console.log('NativeApp', action, payload || {});
     }
   }
 
   // action: setTitle / payload: { title } — 競技場名を app のヘッダーへ送る。
   postToNative('setTitle', { title: track });
 
+  // ---- 表示年月／選択日（パラメータ優先、未指定はデモ既定 2025年3月12日）----
+  var year = targetDate.length >= 4 ? parseInt(targetDate.slice(0, 4), 10) : 2025;
+  var month = targetDate.length >= 6 ? parseInt(targetDate.slice(4, 6), 10) : 3;
+  var SELECTED = selectDate.length >= 8 ? parseInt(selectDate.slice(6, 8), 10)
+    : (targetDay ? parseInt(targetDay, 10) : 12);
+
+  // year select（2024〜2026）
+  var yearSel = document.getElementById('yearSelect');
+  Array.prototype.forEach.call(yearSel.options, function (o) {
+    o.selected = parseInt(o.textContent, 10) === year;
+  });
+
   // month select options
   var monthSel = document.getElementById('monthSelect');
   for (var m = 1; m <= 12; m++) {
     var opt = document.createElement('option');
     opt.textContent = m + '月';
-    if (m === 3) opt.selected = true;
+    if (m === month) opt.selected = true;
     monthSel.appendChild(opt);
   }
 
-  // ---- mock data for March 2025 (matching the design) ----
-  var LEADING_EMPTY = 6;      // day 1 sits on Sunday of the first week
-  var DAYS_IN_MONTH = 31;
-  var SELECTED = 12;
+  // ---- カレンダーの並び（表示年月から算出、Monday 始まり）----
+  var DAYS_IN_MONTH = new Date(year, month, 0).getDate();
+  var firstDow = new Date(year, month - 1, 1).getDay();  // 0=日 … 6=土
+  var LEADING_EMPTY = (firstDow + 6) % 7;                 // Monday 始まりの前詰め
+
+  // 開催バッジ（デモ用モックデータ）。
   var badges = {};
   [1, 8, 9].forEach(function (d) { badges[d] = 'grade-light'; });
   [12, 18, 24, 29].forEach(function (d) { badges[d] = 'grade'; });
@@ -267,15 +291,13 @@
   body.innerHTML = html;
 
   // ---- 日付選択 → app へ通知（JS ブリッジ: raceDateSelected） ----
-  var yearSel = document.getElementById('yearSelect');
-
   function pad2(n) { return (n < 10 ? '0' : '') + n; }
 
   // 選択中の年/月と日から kaisaibi(YYYYMMDD) を組み立てる。
   function buildKaisaibi(day) {
-    var year = parseInt(yearSel.value, 10);            // "2025年" → 2025
-    var month = parseInt(monthSel.value, 10);          // "3月"   → 3
-    return String(year) + pad2(month) + pad2(day);
+    var y = parseInt(yearSel.value, 10);            // "2025年" → 2025
+    var mo = parseInt(monthSel.value, 10);          // "3月"   → 3
+    return String(y) + pad2(mo) + pad2(day);
   }
 
   // action: raceDateSelected / payload: { joCode, kaisaibi }
