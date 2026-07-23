@@ -1,19 +1,26 @@
 #!/usr/bin/env bash
-# Chạy 1 lần trên máy Mac host để dựng web server phục vụ site (clean URL .do).
-# Yêu cầu: Docker Desktop đang chạy. Chạy script từ thư mục gốc repo:  bash deploy/serve.sh
+# Dựng web server phục vụ site (clean URL .do) bằng Caddy — KHÔNG cần Docker.
+# Chạy 1 lần trên máy build. Yêu cầu: đã cài caddy (brew install caddy).
+# Cách dùng:  bash deploy/serve.sh    (đổi port: HOST_PORT=8095 bash deploy/serve.sh)
 set -euo pipefail
 
-APP_NAME="opapp-html"
+export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
+
 HOST_PORT="${HOST_PORT:-8090}"
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"   # thư mục gốc repo
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"      # thư mục gốc repo
+CADDYFILE="$ROOT/deploy/Caddyfile"
 
-echo ">> Deploy $ROOT lên nginx tại port $HOST_PORT"
+if ! command -v caddy >/dev/null 2>&1; then
+  echo "!! Chưa có caddy. Cài bằng:  brew install caddy" >&2
+  exit 1
+fi
 
-docker rm -f "$APP_NAME" 2>/dev/null || true
-docker run -d --name "$APP_NAME" --restart unless-stopped \
-  -p "${HOST_PORT}:80" \
-  -v "$ROOT":/usr/share/nginx/html:ro \
-  -v "$ROOT/deploy/nginx.conf":/etc/nginx/conf.d/default.conf:ro \
-  nginx:alpine
+echo ">> Serve $ROOT tại port $HOST_PORT (Caddy)"
+
+# Dừng caddy cũ (nếu có) rồi start lại nền. try_files đọc file live từ disk,
+# nên sau này chỉ cần git pull là site cập nhật, không phải restart.
+caddy stop 2>/dev/null || true
+SITE_ROOT="$ROOT" HOST_PORT="$HOST_PORT" \
+  caddy start --config "$CADDYFILE" --adapter caddyfile
 
 echo ">> Xong. Truy cập: http://10.0.4.85:${HOST_PORT}/  (vd /keiba/SpRaceInfo.do)"

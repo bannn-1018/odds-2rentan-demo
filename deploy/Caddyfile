@@ -1,0 +1,12 @@
+# Caddy config cho OpAppHtmlDemo (static HTML).
+# Clean URL: /keiba/SpRaceInfo.do -> phục vụ SpRaceInfo.do.html (giống GitHub Pages).
+# SITE_ROOT / HOST_PORT được serve.sh truyền vào qua biến môi trường.
+:{$HOST_PORT:8090} {
+	root * {$SITE_ROOT}
+	try_files {path} {path}.html
+	file_server
+
+	# Không cache HTML để anh em luôn thấy bản mới nhất sau mỗi lần pull.
+	@html path *.html *.do
+	header @html Cache-Control "no-store"
+}
