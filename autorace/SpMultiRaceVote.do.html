@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Vote Multi Race — WebView Mock</title>
+<!--
+  Vote Multi Race (レースまとめ投票) — WebView content mock (đã map theo Figma design)
+  Scope: CHỈ content giữa. Header / footer / dropdown trường-ngày = NATIVE (không vẽ ở đây).
+  1 file / 1 game. Đổi game bằng const PAGE_GAME bên dưới.
+  Fake data + fake API; gọi JS Bridge thật + fallback log (panel 🐞).
+-->
+<style>
+  :root{
+    --bg:#eef1f3; --card:#fff; --ink:#20272e; --sub:#8a949c; --line:#e2e7ea;
+    --dark:#2c2f33; --orange:#f5820a; --green:#12a150; --disabled:#c3cad0;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,"Hiragino Kaku Gothic ProN","Segoe UI",Roboto,sans-serif;font-size:14px;}
+  .wrap{max-width:480px;margin:0 auto;padding-bottom:110px;}
+  .sec{background:var(--card);padding:14px;}
+  .sec + .sec{border-top:8px solid var(--bg);}
+  .sec-title{font-weight:700;font-size:15px;margin:0 0 12px;}
+  .head-row{display:flex;justify-content:space-between;align-items:center;margin:0 0 10px;}
+  .head-row .lbl{font-size:13px;color:#333;}
+  .selall{display:inline-flex;align-items:center;gap:5px;background:#f2f4f6;border:1px solid var(--line);
+    color:#6b7680;border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;user-select:none;}
+  .selall .box{width:14px;height:14px;border:1.5px solid #b7c0c7;border-radius:3px;display:inline-block;position:relative;}
+  .selall.on{color:var(--green);border-color:#bfe6cf;background:#eef8f1;}
+  .selall.on .box{background:var(--green);border-color:var(--green);}
+  .selall.on .box::after{content:"✓";position:absolute;left:0;right:0;top:-1px;text-align:center;color:#fff;font-size:10px;font-weight:800;line-height:14px;}
+  .grid{display:grid;gap:8px;}
+  .g6{grid-template-columns:repeat(6,1fr);}
+  .g8{grid-template-columns:repeat(8,1fr);}
+  .chip{position:relative;border:1px solid var(--line);background:#fff;border-radius:8px;
+    padding:11px 0;text-align:center;font-weight:700;cursor:pointer;user-select:none;
+    font-variant-numeric:tabular-nums;transition:.06s;font-size:14px;}
+  .chip.sel{background:var(--dark);border-color:var(--dark);color:#fff;}
+  .chip.sel::after{content:"✓";position:absolute;top:2px;left:5px;font-size:10px;color:#fff;font-weight:700;}
+  .chip.dis{color:#c7cdd2;background:#fafbfb;cursor:not-allowed;border-color:#eef0f2;}
+  /* 賭式 */
+  .bt-list{display:flex;flex-wrap:wrap;gap:8px;}
+  .bt{position:relative;min-width:60px;border:1px solid var(--line);background:#fff;border-radius:8px;
+    padding:10px 14px;font-weight:700;cursor:pointer;user-select:none;font-size:14px;text-align:center;}
+  .bt.sel{background:var(--dark);border-color:var(--dark);color:#fff;}
+  .bt.sel::after{content:"✓";position:absolute;top:2px;left:5px;font-size:10px;color:#fff;}
+  .bt.off{color:#c7cdd2;background:#fafbfb;cursor:not-allowed;border-color:#eef0f2;}
+  /* マルチ checkbox */
+  .multi{display:flex;align-items:center;gap:8px;padding:12px 14px 14px;background:var(--bg);cursor:pointer;user-select:none;}
+  .multi .cb{width:20px;height:20px;border:2px solid #cbd3d8;border-radius:5px;display:inline-flex;
+    align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:800;}
+  .multi.on .cb{background:var(--green);border-color:var(--green);}
+  .multi .txt{font-weight:700;}
+  .col-title{font-size:13px;color:#333;font-weight:600;}
+  .col + .col{margin-top:14px;}
+  /* topbar: chỉ dropdown kiểu cược (投票モード). Trường đua + ngày = NATIVE. */
+  .topbar{background:var(--bg);padding:10px 14px 0;}
+  .mode-row{display:flex;justify-content:flex-end;}
+  .mode-btn{display:inline-flex;align-items:center;gap:7px;font-size:14px;font-weight:700;color:var(--ink);
+    border:1px solid var(--line);border-radius:6px;background:#fff;padding:9px 14px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+  .mode-btn .ic{font-size:15px;color:var(--ink);}
+  .mode-btn .chev{color:var(--sub);font-size:11px;}
+  .dd{position:relative;display:inline-block;}
+  .dd-menu{position:absolute;z-index:40;top:calc(100% + 6px);min-width:210px;background:#fff;border:1px solid var(--line);
+    border-radius:6px;box-shadow:0 10px 28px rgba(0,0,0,.18);padding:4px 0;display:none;}
+  .dd.right .dd-menu{right:0;}
+  .dd.open .dd-menu{display:block;}
+  .dd-item{display:flex;align-items:center;gap:10px;padding:14px 18px;font-size:15px;color:var(--ink);cursor:pointer;white-space:nowrap;}
+  .dd-item + .dd-item{border-top:1px solid #f0f2f4;}
+  .dd-item .tick{width:14px;color:var(--ink);font-weight:800;}
+  .dd-item:active{background:#f2f4f6;}
+  /* footer bar */
+  .footer{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);
+    box-shadow:0 -2px 12px rgba(0,0,0,.06);}
+  .footer-in{max-width:480px;margin:0 auto;display:flex;align-items:center;gap:10px;padding:10px 12px;}
+  .count{flex:1;line-height:1.2;}
+  .count .n{font-size:16px;font-weight:800;}
+  .count .n b{color:var(--ink);}
+  .count .odds{font-size:12px;color:var(--sub);}
+  .act{display:flex;gap:8px;}
+  .btn{border:none;border-radius:10px;padding:14px 18px;font-size:15px;font-weight:800;cursor:pointer;white-space:nowrap;}
+  .btn-primary{background:var(--orange);color:#fff;}
+  .btn-primary:disabled{background:var(--disabled);cursor:not-allowed;}
+  .btn-ghost{background:#fff;border:1.5px solid var(--orange);color:var(--orange);}
+</style>
+</head>
+<body>
+<div class="wrap" id="app">
+  <!-- Topbar: dropdown đổi kiểu cược (投票モード). Trường đua + ngày do NATIVE handle. -->
+  <div class="topbar">
+    <div class="mode-row">
+      <div class="dd right" id="ddMode">
+        <button class="mode-btn" id="modeBtn"><span class="ic">⇄</span> <span id="modeTxt"></span> <span class="chev">▾</span></button>
+        <div class="dd-menu" id="modeMenu"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 賭式 + マルチ -->
+  <div class="sec" style="padding:12px 14px 0;background:var(--bg)">
+    <div class="bt-list" id="btList"></div>
+  </div>
+  <div class="multi" id="multiBox"><span class="cb" id="multiCb"></span><span class="txt">マルチ・裏目</span></div>
+
+  <!-- レース選択 -->
+  <div class="sec">
+    <div class="sec-title">投票するレースを選択</div>
+    <div class="head-row"><span class="lbl"></span>
+      <button class="selall" id="allRaces"><span class="box"></span>全選択</button></div>
+    <div class="grid g6" id="raceGrid"></div>
+  </div>
+
+  <!-- 着順選択 -->
+  <div class="sec">
+    <div class="sec-title">着順を選択</div>
+    <div id="posCols"></div>
+  </div>
+</div>
+
+<!-- Footer bar -->
+<div class="footer">
+  <div class="footer-in">
+    <div class="count">
+      <div class="n"><b id="cnt">0</b>通り 選択中</div>
+      <div class="odds" id="odds">—</div>
+    </div>
+    <div class="act" id="actions"></div>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* ====== CONFIG THEO GAME (thứ tự & bộ 賭式 map theo Figma design) ====== */
+const GAMES = {
+  keiba:{ posUnit:"頭目", maxNum:16, twoButtons:true, joName:"笠松",
+    bets:[
+      {id:1,name:"単勝",cols:1,ordered:true},
+      {id:2,name:"複勝",cols:1,ordered:false},
+      {id:3,name:"枠連",cols:2,ordered:false},
+      {id:4,name:"枠単",cols:2,ordered:true,ura:true},
+      {id:5,name:"馬連",cols:2,ordered:false},
+      {id:6,name:"馬単",cols:2,ordered:true,ura:true},
+      {id:7,name:"ワイド",cols:2,ordered:false},
+      {id:8,name:"3連複",cols:3,ordered:false},
+      {id:9,name:"3連単",cols:3,ordered:true,multi:true},
+    ]},
+  keirin:{ posUnit:"車目", maxNum:9, twoButtons:false, joName:"宇都宮 最終日",
+    bets:[
+      {id:9,name:"3連単",cols:3,ordered:true,multi:true},
+      {id:8,name:"3連複",cols:3,ordered:false},
+      {id:6,name:"2車単",cols:2,ordered:true,ura:true},
+      {id:5,name:"2車複",cols:2,ordered:false},
+      {id:7,name:"ワイド",cols:2,ordered:false},
+      {id:4,name:"2枠単",cols:2,ordered:true,ura:true,off:true},
+      {id:3,name:"2枠複",cols:2,ordered:false,off:true},
+    ]},
+  autorace:{ posUnit:"車目", maxNum:8, twoButtons:false, joName:"伊勢崎",
+    bets:[
+      {id:9,name:"3連単",cols:3,ordered:true,multi:true},
+      {id:8,name:"3連複",cols:3,ordered:false},
+      {id:6,name:"2連単",cols:2,ordered:true,ura:true},
+      {id:5,name:"2連複",cols:2,ordered:false},
+      {id:1,name:"単勝",cols:1,ordered:true},
+      {id:2,name:"複勝",cols:1,ordered:false},
+      {id:7,name:"ワイド",cols:2,ordered:false},
+    ]}
+};
+
+const PAGE_GAME = "autorace"; // <<< game của trang này (keiba | keirin | autorace)
+const gameKey = GAMES[PAGE_GAME] ? PAGE_GAME : "keiba";
+const G = GAMES[gameKey];
+
+/* ====== KIỂU CƯỢC (投票モード) — đổi mode = DEEPLINK odds-sop://notification?screenId=... ====== */
+const MODES = [
+  {id:"matome_shiki", n:"賭式まとめ投票"},
+  {id:"normal",       n:"通常投票"},
+  {id:"odds",         n:"オッズ投票"},
+  {id:"matome_race",  n:"レースまとめ投票"},
+];
+const CUR_MODE = "matome_race"; // trang này là màn レースまとめ投票
+/* screenId theo game + mode (native cung cấp). KHÔNG kèm joCd/kaisaiBi/raceNo — native giữ context. */
+const VOTE_MODE_SCREEN_ID = {
+  keiba:    { normal:"CA109-01", matome_shiki:"CA109-38", odds:"CA109-39", matome_race:"CA109-81" },
+  keirin:   { normal:"CA309-01", matome_shiki:"CA309-37", odds:"CA309-38", matome_race:"CA309-76" },
+  autorace: { normal:"CA509-01", matome_shiki:"CA509-29", odds:"CA509-30", matome_race:"CA509-62" },
+};
+
+/* ====== BRIDGE (map theo tab 02_Bridge Contract) ====== */
+const BRIDGE = {
+  addToCart:"onAddToCart",      // ID14 (Keirin/Auto: カートに追加する)
+  cartBadge:"updateCartBadge",  // ID15 badge đỏ footer カート
+  saveBuyme:"showToastAddCart", // ID6  (Keiba: 買い目を保存)
+  goToCart:"goToCart",          // ID5  (Keiba: 金額入力へ)
+  navigate:"navigateTo",        // ID17
+  alert:"showAlertDialog",      // ID11
+  kaimeCheck:"kaimeCheck"       // ID16 native->web
+};
+
+const params=new URLSearchParams(location.search);
+
+/* ====== STATE ====== */
+const NUM_COLS=3; // design luôn hiện 1着/2着/3着
+const state={
+  races:[],
+  selRaces:new Set(),
+  selBets:new Set([9,8].filter(id=>G.bets.some(b=>b.id===id&&!b.off))), // preselect 3連単/3連複 như design
+  multiUra:true,
+  cols:Array.from({length:NUM_COLS},()=>new Set()),
+  joCode: params.get("joCd") || params.get("joCode") || "", // native truyền qua URL
+  kaisaiBi: params.get("kaisaiBi") || "",
+  raceNo: params.get("raceNo") || "",
+  mode: CUR_MODE,
+};
+
+/* ====== FAKE API ====== */
+const FakeAPI={
+  fetchBoard(){ logApi("GET /"+gameKey+"/SpMultiRaceVote.do",{game:gameKey,kaisaiBi:state.kaisaiBi,joCode:state.joCode});
+    const races=[]; for(let i=1;i<=11;i++) races.push({no:i,closed:(i<=3)}); // 1R-3R 締切
+    return delay(150).then(()=>({races}));
+  },
+  addToCart(p){ logApi("POST /"+gameKey+"/vote/multirace/add",p);
+    return delay(220).then(()=>({ok:true,cartCount:(FakeAPI._c=(FakeAPI._c||0)+p.count),message:"カートに追加しました"})); },
+  _c:0
+};
+const delay=ms=>new Promise(r=>setTimeout(r,ms));
+
+/* ====== BRIDGE CALL + LOG ====== */
+function callBridge(name,payload){
+  let via="fallback(log)";
+  try{
+    if(window.flutter_inappwebview&&typeof window.flutter_inappwebview.callHandler==="function"){via="flutter_inappwebview";window.flutter_inappwebview.callHandler(name,payload);}
+    else if(window.webkit&&window.webkit.messageHandlers&&window.webkit.messageHandlers[name]){via="webkit";window.webkit.messageHandlers[name].postMessage(payload);}
+    else if(typeof window[name]==="function"){via="window."+name;window[name](payload);}
+    else if(window.AndroidBridge&&typeof window.AndroidBridge[name]==="function"){via="AndroidBridge";window.AndroidBridge[name](JSON.stringify(payload));}
+  }catch(e){via="ERROR:"+e.message;}
+  logBridge(name,payload,via);
+  return via!=="fallback(log)" && via.indexOf("ERROR:")!==0; // true = có native handle (embedded)
+}
+function pushLog(kind,name,p){try{console.log("["+kind+"]",name,p);}catch(e){}}
+function logBridge(n,p,v){console.log("[BRIDGE]",n,v,p);}
+function logApi(n,p){console.log("[API]",n,p);}
+
+/* ====== COMBO CALC ====== */
+function permutations(a,k){const r=[],u=Array(a.length).fill(false),c=[];(function rec(){if(c.length===k){r.push(c.slice());return;}for(let i=0;i<a.length;i++){if(!u[i]){u[i]=true;c.push(a[i]);rec();c.pop();u[i]=false;}}})();return r;}
+function betById(id){return G.bets.find(b=>b.id===id);}
+function calcRaceCombos(bt){
+  const cols=state.cols.slice(0,bt.cols).map(s=>[...s].map(Number));
+  if(cols.length<bt.cols||cols.some(c=>c.length===0))return 0;
+  const ordered=!!bt.ordered, keys=new Set();
+  const add=ordered?t=>keys.add(t.join(">")):t=>keys.add([...t].sort((a,b)=>a-b).join("-"));
+  const useMulti=state.multiUra&&bt.multi, useUra=state.multiUra&&bt.ura;
+  if(useMulti&&ordered){const u=[...new Set(cols.flat())];if(u.length<bt.cols)return 0;permutations(u,bt.cols).forEach(add);}
+  else{const build=(i,used,tup)=>{if(i===cols.length){add(tup);return;}for(const v of cols[i]){if(!used.has(v)){used.add(v);build(i+1,used,[...tup,v]);used.delete(v);}}};build(0,new Set(),[]);
+    if(useUra&&ordered&&bt.cols===2){const rev=[cols[1],cols[0]];const b2=(i,used,tup)=>{if(i===rev.length){add(tup);return;}for(const v of rev[i]){if(!used.has(v)){used.add(v);b2(i+1,used,[...tup,v]);used.delete(v);}}};b2(0,new Set(),[]);}}
+  return keys.size;
+}
+function totalCount(){
+  const races=state.selRaces.size; if(races===0||state.selBets.size===0)return 0;
+  let sum=0; for(const id of state.selBets) sum+=calcRaceCombos(betById(id));
+  return sum*races;
+}
+
+/* ====== RENDER ====== */
+const $=id=>document.getElementById(id);
+function render(){renderBets();renderMulti();renderRaces();renderPos();renderFooter();}
+function renderBets(){
+  const host=$("btList");host.innerHTML="";
+  G.bets.forEach(b=>{
+    const el=document.createElement("div");
+    el.className="bt"+(b.off?" off":(state.selBets.has(b.id)?" sel":""));
+    el.textContent=b.name;
+    if(!b.off) el.onclick=()=>{toggleSet(state.selBets,b.id);render();};
+    host.appendChild(el);
+  });
+}
+function renderMulti(){$("multiBox").classList.toggle("on",state.multiUra);$("multiCb").textContent=state.multiUra?"✓":"";}
+$("multiBox").onclick=()=>{state.multiUra=!state.multiUra;render();};
+function renderRaces(){
+  const g=$("raceGrid");g.innerHTML="";
+  state.races.forEach(r=>{
+    const d=document.createElement("div");
+    d.className="chip"+(r.closed?" dis":(state.selRaces.has(r.no)?" sel":""));
+    d.textContent=r.no+"R";
+    if(!r.closed) d.onclick=()=>{toggleSet(state.selRaces,r.no);render();};
+    g.appendChild(d);
+  });
+  const open=state.races.filter(r=>!r.closed);
+  $("allRaces").classList.toggle("on", open.length>0 && open.every(r=>state.selRaces.has(r.no)));
+}
+$("allRaces").onclick=()=>{
+  const open=state.races.filter(r=>!r.closed);
+  const allSel=open.every(r=>state.selRaces.has(r.no));
+  open.forEach(r=> allSel?state.selRaces.delete(r.no):state.selRaces.add(r.no));
+  render();
+};
+function activeCols(){let m=0;for(const id of state.selBets){const b=betById(id);if(b)m=Math.max(m,b.cols);}return m;}
+function renderPos(){
+  const host=$("posCols");host.innerHTML="";
+  const nc=activeCols();
+  if(nc===0){host.innerHTML='<div style="color:#8a949c;font-size:13px;padding:4px 0">賭式を選択してください</div>';return;}
+  for(let c=0;c<nc;c++){
+    const col=document.createElement("div");col.className="col";
+    const head=document.createElement("div");head.className="head-row";
+    head.innerHTML='<span class="col-title">'+(c+1)+'着/'+(c+1)+G.posUnit+'</span>';
+    const all=document.createElement("button");all.className="selall"+(state.cols[c].size>=G.maxNum?" on":"");all.innerHTML='<span class="box"></span>全選択';
+    all.onclick=()=>toggleCol(c);
+    head.appendChild(all);col.appendChild(head);
+    const grid=document.createElement("div");grid.className="grid g8";
+    for(let n=1;n<=G.maxNum;n++){
+      const chip=document.createElement("div");
+      chip.className="chip"+(state.cols[c].has(n)?" sel":"");
+      chip.textContent=n;
+      chip.onclick=()=>{toggleSet(state.cols[c],n);render();};
+      grid.appendChild(chip);
+    }
+    col.appendChild(grid);host.appendChild(col);
+  }
+}
+function toggleCol(c){const s=state.cols[c],m=G.maxNum;if(s.size>=m)s.clear();else for(let n=1;n<=m;n++)s.add(n);render();}
+function toggleSet(set,v){set.has(v)?set.delete(v):set.add(v);}
+
+function renderFooter(){
+  const n=totalCount();
+  $("cnt").textContent=n.toLocaleString();
+  $("odds").textContent = n>0 ? "1.0〜9999.9" : "—"; // odds giả lập (design hiện range)
+  const host=$("actions");host.innerHTML="";
+  if(G.twoButtons){
+    const save=mkBtn("買い目を保存","btn-ghost",onSave);
+    const go=mkBtn("金額入力へ","btn-primary",onGoAmount);
+    save.disabled=go.disabled=(n===0);
+    host.append(save,go);
+  }else{
+    const add=mkBtn("カートに追加する","btn-primary",onAdd);
+    add.disabled=(n===0);
+    host.append(add);
+  }
+}
+function mkBtn(txt,cls,fn){const b=document.createElement("button");b.className="btn "+cls;b.textContent=txt;b.onclick=fn;return b;}
+
+/* ====== PAYLOAD + ACTIONS ====== */
+function buildPayload(){
+  return {game:gameKey, joCode:state.joCode, kaisaiBi:state.kaisaiBi, raceNo:state.raceNo, mode:state.mode,
+    betTypes:[...state.selBets], multiUra:state.multiUra,
+    races:[...state.selRaces].sort((a,b)=>a-b),
+    selections:state.cols.map(s=>[...s].sort((a,b)=>a-b)),
+    count:totalCount()};
+}
+function validate(){
+  if(state.selBets.size===0){showAlert("賭式を選択してください。");return false;}
+  if(state.selRaces.size===0){showAlert("レースを選択してください。");return false;}
+  if(totalCount()===0){showAlert("着順を選択してください。");return false;}
+  if(totalCount()>120){showAlert("一度に購入できる件数（120件）をオーバーしています。("+totalCount()+"件)");return false;} // 120件 cap
+  return true;
+}
+async function onAdd(){ // Keirin/Auto
+  if(!validate())return;
+  const p=buildPayload();
+  const res=await FakeAPI.addToCart(p); // mock add (native tự add khi đấu endpoint thật)
+  const native=callBridge(BRIDGE.addToCart,p);
+  callBridge(BRIDGE.cartBadge,{cartCount:res.cartCount});
+  if(!native) toast(res.message+" (giỏ:"+res.cartCount+"件)"); // chỉ toast khi standalone; embedded để native toast
+  clearSelection();
+}
+function onSave(){ if(!validate())return; const native=callBridge(BRIDGE.saveBuyme,buildPayload()); if(!native) toast("買い目を保存しました"); }
+function onGoAmount(){ if(!validate())return; callBridge(BRIDGE.goToCart,buildPayload()); }
+function clearSelection(){state.selRaces.clear();state.cols=Array.from({length:NUM_COLS},()=>new Set());render();}
+
+/* カートの中身を確認 -> navigateTo (expose để native gọi khi cần) */
+window.goToCartView=()=>callBridge(BRIDGE.navigate,{target:"cart",url:"/"+gameKey+"/SpCmVoteConfirm.do"});
+/* Native gọi khi back/rời màn còn 買い目 (ID16) */
+window.kaimeCheck=function(){const has=state.selBets.size>0&&state.selRaces.size>0;logBridge(BRIDGE.kaimeCheck,{hasBuyme:has},"called-by-native");return has;};
+/* Alert: ưu tiên native dialog; chỉ toast khi standalone (tránh double với native) */
+function showAlert(msg){const native=callBridge(BRIDGE.alert,{title:"",message:msg});if(!native)toast(msg);}
+let toastT=null;
+function toast(msg){let t=$("toast");if(!t){t=document.createElement("div");t.id="toast";
+  t.style.cssText="position:fixed;left:50%;transform:translateX(-50%);bottom:140px;background:#263238;color:#fff;padding:10px 16px;border-radius:20px;font-size:13px;z-index:60;max-width:90%;text-align:center;transition:opacity .3s";
+  document.body.appendChild(t);}t.textContent=msg;t.style.opacity="1";clearTimeout(toastT);toastT=setTimeout(()=>t.style.opacity="0",2200);}
+
+/* ====== TOPBAR: chỉ dropdown kiểu cược (投票モード) ====== */
+function buildDD(ddId,txtId,menuId,items,valKey,txtKey,cur,onSelect){
+  const dd=$(ddId),menu=$(menuId);
+  if(txtId){const c=items.find(x=>x[valKey]===cur);$(txtId).textContent=c?c[txtKey]:"";}
+  menu.innerHTML="";
+  items.forEach(it=>{
+    const el=document.createElement("div");el.className="dd-item";
+    el.innerHTML='<span class="tick">'+(it[valKey]===cur?"✓":"")+'</span><span>'+it[txtKey]+'</span>';
+    el.onclick=()=>{dd.classList.remove("open");onSelect(it[valKey]);};
+    menu.appendChild(el);
+  });
+}
+function toggleDD(id){const dd=$(id),was=dd.classList.contains("open");closeDD();if(!was)dd.classList.add("open");}
+function closeDD(){document.querySelectorAll(".dd.open").forEach(d=>d.classList.remove("open"));}
+document.addEventListener("click",e=>{if(!e.target.closest(".dd"))closeDD();});
+function buildMode(){buildDD("ddMode","modeTxt","modeMenu",MODES,"id","n",state.mode,v=>onModeChange(v));}
+function initTopbar(){
+  buildMode();
+  $("modeBtn").onclick=e=>{e.stopPropagation();toggleDD("ddMode");};
+}
+/* Đổi kiểu cược (投票モード) -> DEEPLINK odds-sop://notification?screenId=... (native intercept + điều hướng) */
+function onModeChange(modeId){
+  if(modeId===state.mode) return; // đang ở mode này -> no-op
+  const screenId=(VOTE_MODE_SCREEN_ID[gameKey]||{})[modeId];
+  if(!screenId){buildMode();return;}
+  const deeplink="odds-sop://notification?screenId="+screenId; // KHÔNG kèm joCd/kaisaiBi/raceNo
+  pushLog("DEEPLINK",deeplink,{mode:modeId,screenId},"location.href");
+  buildMode(); // giữ dropdown ở mode hiện tại tới khi native điều hướng
+  window.location.href=deeplink;
+}
+
+/* ====== BOOT ====== */
+(async function boot(){
+  initTopbar();
+  const b=await FakeAPI.fetchBoard();
+  state.races=b.races;
+  render();
+})();
+</script>
+</body>
+</html>
