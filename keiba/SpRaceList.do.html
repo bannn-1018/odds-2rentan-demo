@@ -157,7 +157,7 @@
     logBridgeSend(payload);
     try {
       if (window.flutter_inappwebview && window.flutter_inappwebview.callHandler) {
-        window.flutter_inappwebview.callHandler('race_list', payload);
+        window.flutter_inappwebview.callHandler('NativeApp', payload);
         return;
       }
       console.log('[race_list bridge]', payload); // dev fallback (plain browser)
