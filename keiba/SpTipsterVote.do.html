@@ -425,9 +425,9 @@
       // IN LOG RA CHROME INSPECT
       console.log('=== Button Clicked ===');
       console.log('Screen ID:', screenId);
-      console.log('Redirecting to:', 'odds-sop://notification?action=1&screenId=' + screenId+ 'joCd=03&raceNo=6&kaisaiBi=20260723');
+      console.log('Redirecting to:', 'odds-sop://notification?action=1&screenId=' + screenId+ '&joCd=03&raceNo=6&kaisaiBi=20260723');
         window.location.href =
-          'odds-sop://notification?action=1&screenId=' + btn.getAttribute('data-screen-id')+ 'joCd=03&raceNo=6&kaisaiBi=20260723';
+          'odds-sop://notification?action=1&screenId=' + btn.getAttribute('data-screen-id')+ '&joCd=03&raceNo=6&kaisaiBi=20260723';
       });
     });
   })();
