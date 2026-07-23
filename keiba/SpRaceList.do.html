@@ -152,22 +152,35 @@
     'SpTipsterVote.do': 'CA108-01'  // 予想情報
   };
 
-  function callNative(message, params) {
-    var payload = { message: message, params: params };
-    logBridgeSend(payload);
+  function callNative(action, payload) {
+    var requestData = { action: action, payload: payload };
+    logBridgeSend(requestData);
     try {
       if (window.flutter_inappwebview && window.flutter_inappwebview.callHandler) {
-        window.flutter_inappwebview.callHandler('NativeApp', payload);
+        window.flutter_inappwebview.callHandler('race_list', requestData);
         return;
       }
-      console.log('[race_list bridge]', payload); // dev fallback (plain browser)
+      console.log('[race_list bridge]', requestData); // dev fallback (plain browser)
     } catch (err) {
       console.error('[race_list bridge] failed:', err);
     }
   }
 
+  /* Example dialog request — matches the native showAppDialog contract.
+     Call showAppDialog({ title, message, ... }) to trigger it. */
+  function showAppDialog(opts) {
+    opts = opts || {};
+    callNative('showAppDialog', {
+      type:          opts.type          || 'error',
+      title:         opts.title         || '入力内容確認',
+      message:       opts.message       || '半角数値1.0〜9999.9の範囲で指定...',
+      positiveLabel: opts.positiveLabel || 'OK',
+      negativeLabel: (opts.negativeLabel !== undefined ? opts.negativeLabel : null)
+    });
+  }
+
   function openDeepLink(url, label) {
-    logBridgeSend({ message: label || 'deeplink', params: { url: url } });
+    logBridgeSend({ action: label || 'deeplink', payload: { url: url } });
     window.location.href = url;
   }
 
@@ -212,8 +225,8 @@
   function pad2(n) { return n < 10 ? '0' + n : '' + n; }
   function formatTime(d) { return pad2(d.getHours()) + ':' + pad2(d.getMinutes()) + ':' + pad2(d.getSeconds()); }
 
-  function logBridgeSend(payload) {
-    bridgeLog.unshift({ time: new Date(), message: payload.message, params: payload.params });
+  function logBridgeSend(data) {
+    bridgeLog.unshift({ time: new Date(), message: data.action, params: data.payload });
     renderBridgeLog();
     updateDebugBadge();
   }
