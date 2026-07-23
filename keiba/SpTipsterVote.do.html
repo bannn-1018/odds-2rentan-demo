@@ -478,16 +478,19 @@
       });
     });
   })();
+  function openModalUrl(url, title) {
+  if (window.flutter_inappwebview && window.flutter_inappwebview.callHandler) {
+    window.flutter_inappwebview.callHandler(
+      'NativeApp',
+      JSON.stringify({ action: 'showModalUrl', payload: { url: url, title: title || '' } })
+    );
+  }
+}
   /* ===================== 自信度 help (?) → native modal ===================== */
   (function () {
     document.querySelectorAll('.help').forEach(function (el) {
       el.addEventListener('click', function () {
-        if (window.flutter_inappwebview && window.flutter_inappwebview.callHandler) {
-            window.flutter_inappwebview.callHandler(
-              'NativeApp',
-              JSON.stringify({ action: 'showConfidenceIndex', payload: null }),
-            );
-        }
+        openModalUrl('https://bannn-1018.github.io/odds-2rentan-demo/keiba/SpConfidence.do', '自信度（★★★）について');
       });
     });
   })();
@@ -496,12 +499,7 @@
     var buttons = document.querySelectorAll('.recent-btn');
     buttons.forEach(function (btn) {
       btn.addEventListener('click', function () {
-        if (window.flutter_inappwebview && window.flutter_inappwebview.callHandler) {
-          window.flutter_inappwebview.callHandler(
-            'NativeApp',
-            JSON.stringify({ action: 'showRecentPredictionModal', payload: null }),
-          );
-        }
+        openModalUrl('https://bannn-1018.github.io/odds-2rentan-demo/keiba/SpRecentPrediction.do', '直近の予想実績');
       });
     });
   })();
