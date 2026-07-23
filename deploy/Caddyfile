@@ -1,8 +1,9 @@
 # Caddy config cho OpAppHtmlDemo (static HTML).
 # Clean URL: /keiba/SpRaceInfo.do -> phục vụ SpRaceInfo.do.html (giống GitHub Pages).
 # SITE_ROOT / HOST_PORT được serve.sh truyền vào qua biến môi trường.
-# Bind 0.0.0.0 (IPv4) để máy khác vào được qua IP LAN (10.0.4.85), không chỉ ::1.
-0.0.0.0:{$HOST_PORT:8090} {
+:{$HOST_PORT:8090} {
+	# Bind IPv4 wildcard để máy khác vào được qua IP LAN (không chỉ IPv6 ::1).
+	bind 0.0.0.0
 	root * {$SITE_ROOT}
 	try_files {path} {path}.html
 	file_server
