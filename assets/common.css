@@ -924,3 +924,81 @@ table.yosou .horse-name { font-size: 13px; }
   background: #f6f6f6; border: 1px solid var(--line); border-radius: 6px;
   font-size: 13px; color: var(--ink-soft);
 }
+
+/* ==========================================================
+   予想 > AI指数 (AI index matrix — race rows × rank columns)
+   ========================================================== */
+/* result-cell colours for this table (Figma subcolor tokens) */
+:root {
+  --aidx-red: #e83d3d;
+  --aidx-blue: #318fe4;
+  --aidx-green: #00943c;
+}
+.aidx-toolbar {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 16px 12px 8px;
+}
+.aidx-sort {
+  width: 116px; height: 40px;
+  display: inline-flex; align-items: center; justify-content: space-between; gap: 10px;
+  background: #ffffff; border: 1px solid var(--cell-border); border-radius: 4px;
+  padding: 0 10px 0 12px; font-size: 12px; font-weight: 300; color: var(--ink);
+  font-family: inherit; cursor: pointer;
+}
+.aidx-sort .icon { width: 12px; height: 12px; color: var(--ink); flex-shrink: 0; }
+.aidx-about {
+  height: 32px;
+  display: inline-flex; align-items: center; gap: 4px;
+  background: #ffffff; border: 1px solid #333333; border-radius: 4px;
+  padding: 0 12px; font-size: 10px; font-weight: 600; color: var(--ink);
+  font-family: inherit; cursor: pointer;
+}
+.aidx-about .q-circle {
+  width: 16px; height: 16px; border-radius: 50%; background: #333333; color: #ffffff;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; line-height: 1; flex-shrink: 0;
+}
+
+/* horizontally scrollable matrix; the AI指数順 columns (race no + 馬番/指数
+   labels) stay fixed while the rank columns scroll (仕様メモ). */
+.aidx-wrap { padding: 8px 12px 0; }
+.aidx-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table.aidx { border-collapse: separate; border-spacing: 0; white-space: nowrap; }
+table.aidx th, table.aidx td {
+  border-right: 1px solid var(--cell-border); border-bottom: 1px solid var(--cell-border);
+  padding: 4px 6px; text-align: center; vertical-align: middle;
+}
+table.aidx thead th {
+  height: 32px; background: #999999; color: #ffffff;
+  font-size: 10px; font-weight: 700; line-height: 1.2;
+  border-top: 1px solid var(--cell-border);
+}
+table.aidx thead th.ax-head {
+  position: sticky; left: 0; z-index: 3;
+  width: 69px; min-width: 69px; border-left: 1px solid var(--cell-border);
+}
+table.aidx tbody td { height: 34px; font-size: 10px; line-height: 1.2; color: var(--ink); }
+table.aidx td.ax-race {
+  position: sticky; left: 0; z-index: 2;
+  width: 35px; min-width: 35px; padding: 4px 0;
+  background: #eeeeee; font-weight: 600;
+  border-left: 1px solid var(--cell-border);
+}
+table.aidx td.ax-race.live { background: var(--aidx-green); color: #ffffff; }
+table.aidx td.ax-label {
+  position: sticky; left: 35px; z-index: 2;
+  width: 34px; min-width: 34px;
+  background: #ffffff; text-align: left; font-weight: 300;
+}
+table.aidx td.ax-cell { width: 34px; min-width: 34px; font-weight: 400; }
+table.aidx td.ax-cell.fin1 { background: var(--fin1-bg); color: var(--aidx-red); font-weight: 700; }
+table.aidx td.ax-cell.fin2 { background: var(--fin2-bg); color: var(--aidx-blue); font-weight: 700; }
+table.aidx td.ax-cell.fin3 { background: var(--fin3-bg); color: var(--aidx-green); font-weight: 700; }
+
+/* full-width orange vote button (投票する) */
+.aidx-vote {
+  display: block; width: calc(100% - 24px); margin: 0 12px 24px; min-height: 48px;
+  border: none; border-radius: 8px; background: #e7750c; color: #ffffff;
+  font-size: 16px; font-weight: 700; font-family: inherit;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); cursor: pointer;
+}

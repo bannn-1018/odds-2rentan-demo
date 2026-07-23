@@ -199,9 +199,42 @@
     <div class="ai-panel" data-ai="pre"><div class="placeholder">直前重視AIは準備中です。</div></div>
   </div>
 
-  <!-- AI指数 (placeholder) -->
+  <!-- AI指数 -->
   <div class="ysub-panel" data-ysub="index">
-    <div class="placeholder">AI指数は準備中です。</div>
+    <div class="aidx-toolbar">
+      <!-- 並び順プルダウン（選択肢・並び替え挙動は後日） -->
+      <button type="button" class="aidx-sort" id="aidxSort">
+        <span>AI指数順</span>
+        <span class="icon"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2.5 5.5L8 11L13.5 5.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </button>
+      <button type="button" class="aidx-about">
+        <span class="q-circle">?</span>
+        <span>AI指数とは</span>
+      </button>
+    </div>
+
+    <div class="aidx-wrap">
+      <div class="aidx-scroll">
+        <table class="aidx">
+          <thead>
+            <tr id="aidxHead">
+              <th class="ax-head" colspan="2">AI指数順</th>
+            </tr>
+          </thead>
+          <tbody id="aidxBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="foot-actions">
+      <button type="button" class="reload-link">
+        <span class="icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 1C5.93 1 1 5.92 1 12C1 18.08 5.93 23 12 23C18.07 23 23 18.07 23 12C23 5.93 18.08 1 12 1ZM11.87 19C8.21 18.93 5.12 15.88 5.01 12.22C4.92 9.3 6.6 6.79 9.07 5.65C9.69 5.36 10.36 5.16 11.07 5.07V3.96C11.07 3.28 11.84 2.87 12.41 3.26L15.74 5.54C16.24 5.88 16.24 6.61 15.74 6.95L12.41 9.23C11.84 9.62 11.07 9.22 11.07 8.53V7.09C10.33 7.22 9.65 7.52 9.07 7.95C7.81 8.86 7 10.34 7 12C7 15.11 9.85 17.56 13.09 16.89C14.96 16.49 16.48 14.99 16.88 13.12C17.14 11.93 16.97 10.78 16.5 9.81C16.28 9.37 16.4 8.83 16.8 8.55C17.28 8.2 17.99 8.34 18.26 8.88C18.73 9.82 18.99 10.87 18.99 12C18.99 15.91 15.79 19.07 11.86 19H11.87Z" fill="currentColor"/></svg></span>
+        <span>最新情報に更新する</span>
+      </button>
+    </div>
+
+    <!-- 遷移先（投票画面）は後日 -->
+    <button type="button" class="aidx-vote">投票する</button>
   </div>
 </div>
 
@@ -457,5 +490,54 @@
         }
       });
     });
+  })();
+  /* ===================== 予想 > AI指数 (matrix table) ===================== */
+  (function () {
+    var RANKS = 16;        // AI指数順 columns
+    var RACES = 12;        // 1R〜12R
+    var CURRENT = 11;      // 表示中レース（緑ハイライト）: 1R〜10R は結果確定済み
+
+    // header: AI指数順 | 1 … 16
+    var head = document.getElementById('aidxHead');
+    for (var n = 1; n <= RANKS; n++) head.innerHTML += '<th>' + n + '</th>';
+
+    // dummy 馬番/指数 patterns (odd/even rows), repeated across 16 columns
+    var SEQ_A = [[4, 91], [5, 90], [11, 63], [6, 60], [8, 93], [4, 91], [5, 90], [11, 63], [6, 60]];
+    var SEQ_B = [[4, 91], [11, 63], [6, 60], [4, 91], [11, 63], [6, 60], [8, 93], [4, 91], [6, 60]];
+    // 着順セル（結果確定後のみ背景色で1〜3着を表す）: 列番号(1始まり) → class
+    var FIN_A = { 1: 'fin1', 3: 'fin3', 7: 'fin2' };
+    var FIN_B = { 2: 'fin2', 6: 'fin3', 10: 'fin1' };
+
+    var body = document.getElementById('aidxBody');
+    var html = '';
+    for (var r = 1; r <= RACES; r++) {
+      var odd = r % 2 === 1;
+      var seq = odd ? SEQ_A : SEQ_B;
+      var fin = odd ? FIN_A : FIN_B;
+      var finished = r < CURRENT;
+      html += '<tr>';
+      html += '<td class="ax-race' + (r === CURRENT ? ' live' : '') + '">' + r + 'R</td>';
+      html += '<td class="ax-label">馬番<br>指数</td>';
+      for (var c = 1; c <= RANKS; c++) {
+        var d = seq[(c - 1) % seq.length];
+        var cls = finished && fin[c] ? ' ' + fin[c] : '';
+        html += '<td class="ax-cell num' + cls + '">' + d[0] + '<br>' + d[1] + '</td>';
+      }
+      html += '</tr>';
+    }
+    body.innerHTML = html;
+
+    // AI指数とは → native modal（action名は仮）
+    var about = document.querySelector('.aidx-about');
+    if (about) {
+      about.addEventListener('click', function () {
+        if (window.flutter_inappwebview && window.flutter_inappwebview.callHandler) {
+          window.flutter_inappwebview.callHandler(
+            'NativeApp',
+            JSON.stringify({ action: 'showAiIndexDescription', payload: null }),
+          );
+        }
+      });
+    }
   })();
 </script>
