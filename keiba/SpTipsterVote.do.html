@@ -49,9 +49,9 @@
     </div>
 
     <div class="vote-actions">
-      <button type="button">My予想印で<br>投票</button>
-      <button type="button">予想印Aで<br>投票</button>
-      <button type="button">予想印Bで<br>投票</button>
+      <button type="button" data-screen-id="CA109-80">My予想印で<br>投票</button>
+      <button type="button" data-screen-id="CA109-75">予想印Aで<br>投票</button>
+      <button type="button" data-screen-id="CA109-76">予想印Bで<br>投票</button>
     </div>
   </div>
 
@@ -414,5 +414,16 @@
     }
     fillBadges('tanBadges', 1, 16);  // 単勝 16点
     fillBadges('sanBadges', 3, 16);  // 3連単 3着 14点
+  })();
+    /* ===================== 予想印投票 → native 投票タブ ===================== */
+  (function () {
+    var buttons = document.querySelectorAll('.vote-actions button');
+    buttons.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        // Chỉ gửi "ý định"; app tự điền joCd/kaisaiBi/raceNo.
+        window.location.href =
+          'odds-sop://vote?screenId=' + btn.getAttribute('data-screen-id');
+      });
+    });
   })();
 </script>
