@@ -478,11 +478,11 @@
       });
     });
   })();
-  function openModalUrl(url, title) {
+  function openModalUrl(url, title, height) {
   if (window.flutter_inappwebview && window.flutter_inappwebview.callHandler) {
     window.flutter_inappwebview.callHandler(
       'NativeApp',
-      JSON.stringify({ action: 'showModalUrl', payload: { url: url, title: title || '' } })
+      JSON.stringify({ action: 'showModalUrl', payload: { url: url, title: title || '', height: height || null } })
     );
   }
 }
@@ -490,7 +490,7 @@
   (function () {
     document.querySelectorAll('.help').forEach(function (el) {
       el.addEventListener('click', function () {
-        openModalUrl('https://bannn-1018.github.io/odds-2rentan-demo/keiba/SpConfidence.do', '自信度（★★★）について');
+        openModalUrl('https://bannn-1018.github.io/odds-2rentan-demo/keiba/SpConfidence.do', '自信度（★★★）について', 300);
       });
     });
   })();
