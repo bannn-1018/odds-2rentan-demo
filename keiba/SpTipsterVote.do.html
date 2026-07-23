@@ -464,6 +464,20 @@
       });
     });
   })();
+    /* ===================== 予想印投票 → native 投票タブ ===================== */
+  (function () {
+    var buttons = document.querySelectorAll('.aidx-vote button');
+    buttons.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+      
+      // IN LOG RA CHROME INSPECT
+      console.log('=== Button Clicked ===');
+      console.log('Redirecting to:', 'odds-sop://notification?action=1&screenId=CA109-80&joCd=03&raceNo=6&kaisaiBi=20260723');
+        window.location.href =
+          'odds-sop://notification?action=1&screenId=CA109-80&joCd=03&raceNo=6&kaisaiBi=20260723';
+      });
+    });
+  })();
   /* ===================== 自信度 help (?) → native modal ===================== */
   (function () {
     document.querySelectorAll('.help').forEach(function (el) {
