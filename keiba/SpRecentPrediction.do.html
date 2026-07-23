@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #ffffff;
+            color: #333333;
+            padding: 16px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        /* Phần mô tả hàng đầu */
+        .description {
+            color: #555555;
+            margin-bottom: 24px;
+            text-align: justify;
+        }
+        .description p {
+            margin-bottom: 8px;
+        }
+
+        /* Vùng hiển thị biểu đồ tròn (Charts) */
+        .charts-container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 28px;
+        }
+        .chart-box {
+            text-align: center;
+        }
+        .chart-label {
+            font-size: 15px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #333333;
+        }
+        .circle-chart {
+            position: relative;
+            width: 100px;
+            height: 100px;
+        }
+        .chart-percentage {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ffffff;
+            font-weight: bold;
+            font-size: 24px;
+            display: flex;
+            align-items: baseline;
+        }
+        .chart-percentage span {
+            font-size: 14px;
+            margin-left: 2px;
+        }
+
+        /* Hộp tiêu điểm màu xanh lá (Max payout) */
+        .highlight-card {
+            border: 2px solid #28a745;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 24px;
+        }
+        .card-title {
+            color: #28a745;
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+        .card-body {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+        .card-info {
+            font-size: 13px;
+            color: #333333;
+            line-height: 1.4;
+        }
+        .card-payout {
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .card-payout span {
+            font-size: 13px;
+            font-weight: normal;
+            margin-left: 2px;
+        }
+
+        /* Danh sách lịch sử */
+        .history-list {
+            margin-bottom: 24px;
+        }
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #eeeeee;
+        }
+        .history-info {
+            font-size: 13px;
+            color: #333333;
+            line-height: 1.4;
+        }
+        .history-payout {
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .history-payout span {
+            font-size: 13px;
+            font-weight: normal;
+            margin-left: 2px;
+        }
+
+        /* Ghi chú chân trang */
+        .footer-note {
+            font-size: 11px;
+            color: #777777;
+            line-height: 1.5;
+            margin-top: 20px;
+        }
+        .footer-note a {
+            color: #007bff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Khối text mô tả -->
+    <div class="description">
+        <p>馬の情報として、血統、騎手成績、厩舎成績など過去2年にわたるレース結果を考慮したAI予想となっています。</p>
+        <p>出走表と前5走のタイム、着順、着差や過去レースの勝率、連対率などから、各馬の着順を予想して、的中させることを重視しています。</p>
+    </div>
+
+    <!-- Khối biểu đồ tỉ lệ % (Sử dụng SVG tròn mượt mà) -->
+    <div class="charts-container">
+        <!-- Biểu đồ 1: 的中率 70% -->
+        <div class="chart-box">
+            <div class="chart-label">的中率</div>
+            <div class="circle-chart">
+                <svg width="100" height="100" viewBox="0 0 36 36">
+                    <circle cx="18" cy="18" r="15.915" fill="#a482e6"/>
+                    <circle cx="18" cy="18" r="15.915" fill="none" stroke="#895ce0" stroke-width="4" stroke-dasharray="70 30" stroke-dashoffset="25"/>
+                </svg>
+                <div class="chart-percentage">70<span>%</span></div>
+            </div>
+        </div>
+        <!-- Biểu đồ 2: 回収率 63% -->
+        <div class="chart-box">
+            <div class="chart-label">回収率</div>
+            <div class="circle-chart">
+                <svg width="100" height="100" viewBox="0 0 36 36">
+                    <circle cx="18" cy="18" r="15.915" fill="#72c491"/>
+                    <circle cx="18" cy="18" r="15.915" fill="none" stroke="#4db675" stroke-width="4" stroke-dasharray="63 37" stroke-dashoffset="25"/>
+                </svg>
+                <div class="chart-percentage">63<span>%</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hộp xanh lá nổi bật (Max Payout) -->
+    <div class="highlight-card">
+        <div class="card-title">的中率重視AI予想の最大払戻金</div>
+        <div class="card-body">
+            <div class="card-info">
+                22.12.12 笠松10R 3連単<br>
+                払戻金
+            </div>
+            <div class="card-payout">62,370<span>円</span></div>
+        </div>
+    </div>
+
+    <!-- Danh sách kết quả dự đoán gần đây -->
+    <div class="history-list">
+        <!-- Dòng lặp mẫu (Nhân bản đủ số dòng như ảnh của bạn) -->
+        <div class="history-item">
+            <div class="history-info">
+                22.10.21 笠松4R 3連複<br>
+                払戻金
+            </div>
+            <div class="history-payout">2,400<span>円</span></div>
+        </div>
+        <div class="history-item">
+            <div class="history-info">
+                22.10.21 笠松4R 3連複<br>
+                払戻金
+            </div>
+            <div class="history-payout">5,400<span>円</span></div>
+        </div>
+        <div class="history-item">
+            <div class="history-info">
+                22.10.21 笠松4R 3連複<br>
+                払戻金
+            </div>
+            <div class="history-payout">8,900<span>円</span></div>
+        </div>
+        <div class="history-item">
+            <div class="history-info">
+                22.10.21 笠松4R 3連複<br>
+                払戻金
+            </div>
+            <div class="history-payout">5,500<span>円</span></div>
+        </div>
+        <div class="history-item">
+            <div class="history-info">
+                22.10.21 笠松4R 3連複<br>
+                払戻金
+            </div>
+            <div class="history-payout">10,000<span>円</span></div>
+        </div>
+        <!-- Thêm các dòng dưới để cấu trúc lặp lại chính xác -->
+        <div class="history-item">
+            <div class="history-info">
+                22.10.21 笠松4R 3連複<br>
+                払戻金
+            </div>
+            <div class="history-payout">2,400<span>円</span></div>
+        </div>
+        <div class="history-item">
+            <div class="history-info">
+                22.10.21 笠松4R 3連複<br>
+                払戻金
+            </div>
+            <div class="history-payout">5,400<span>円</span></div>
+        </div>
+        <div class="history-item">
+            <div class="history-info">
+                22.10.21 笠松4R 3連複<br>
+                払戻金
+            </div>
+            <div class="history-payout">8,900<span>円</span></div>
+        </div>
+    </div>
+
+    <!-- Điều khoản / Ghi chú dưới cùng -->
+    <div class="footer-note">
+        ※ 掲載されている情報の内容に関しては、万全を期しておりますが、その内容の正確性および安全性を保証するものではありません。詳しくはオッズパークの<a href="#">免責事項</a>をご確認ください。
+    </div>
+
+</body>
+</html>
