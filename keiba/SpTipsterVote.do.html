@@ -420,9 +420,14 @@
     var buttons = document.querySelectorAll('.vote-actions button');
     buttons.forEach(function (btn) {
       btn.addEventListener('click', function () {
-        // Chỉ gửi "ý định"; app tự điền joCd/kaisaiBi/raceNo.
+        var screenId = btn.getAttribute('data-screen-id');
+      
+      // IN LOG RA CHROME INSPECT
+      console.log('=== Button Clicked ===');
+      console.log('Screen ID:', screenId);
+      console.log('Redirecting to:', 'odds-sop://notifications?action=1&screenId=' + screenId);
         window.location.href =
-          'odds-sop://vote?screenId=' + btn.getAttribute('data-screen-id');
+          'odds-sop://notifications?action=1&screenId=' + btn.getAttribute('data-screen-id');
       });
     });
   })();
