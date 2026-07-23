@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        /* Ép HTML và Body co giãn theo content, không chiếm full màn hình */
+        html, body {
+            height: auto !important;
+            min-height: 0 !important;
+            background-color: #ffffff;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            color: #333333;
+            padding: 16px;
+            font-size: 14px;
+            line-height: 1.6;
+            text-align: justify;
+            overflow: hidden; /* Giúp tính toán scrollHeight chính xác ở phía Native */
+        }
+        .content-block {
+            margin-bottom: 20px;
+        }
+        .content-block p {
+            margin-bottom: 8px;
+        }
+        /* Dòng cuối cùng của đoạn văn không cần margin dưới */
+        .content-block p:last-child {
+            margin-bottom: 0;
+        }
+        .update-title {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Khối nội dung giải thích chính -->
+    <div class="content-block">
+        <p>オッズパークで独自に開発したAIによりはじき出された、当該レースにおいての競走馬の期待値を数値化したもので、数値が大きい方が期待値が高いことを表します。</p>
+        <p>オッズパークAI指数算出にあたっては、競走馬の過去の実績はもちろん、血統、騎手成績、厩舎成績、競馬場コース毎の枠順傾向など多岐にわたります。</p>
+        <p>これらをオッズパークオリジナル的方法で算出、数値化したものが「オッズパークAI指数」です。</p>
+    </div>
+
+    <!-- Khối nội dung thời gian cập nhật -->
+    <div class="content-block">
+        <div class="update-title">〇更新時間</div>
+        <p>開催中の全レースのAI指数を、前日夜までに掲載いたします。</p>
+    </div>
+
+</body>
+</html>
