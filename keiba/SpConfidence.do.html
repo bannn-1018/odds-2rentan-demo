@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #ffffff;
+            color: #333333;
+            padding: 0 16px;
+        }
+        .row {
+            display: flex;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        /* Dòng cuối cùng không có border dưới */
+        .row:last-child {
+            border-bottom: none;
+        }
+        .stars {
+            font-size: 24px;
+            white-space: nowrap;
+            margin-right: 16px;
+            letter-spacing: 2px;
+            display: flex;
+        }
+        .star-filled {
+            color: #333333;
+        }
+        .star-empty {
+            color: #e0e0e0;
+        }
+        .text {
+            font-size: 15px;
+            line-height: 1.5;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Dòng 1 -->
+    <div class="row">
+        <div class="stars">
+            <span class="star-filled">★</span>
+            <span class="star-filled">★</span>
+            <span class="star-filled">★</span>
+        </div>
+        <div class="text">AI予想の期待値がとても高いオススメのレース</div>
+    </div>
+
+    <!-- Dòng 2 -->
+    <div class="row">
+        <div class="stars">
+            <span class="star-filled">★</span>
+            <span class="star-filled">★</span>
+            <span class="star-empty">★</span>
+        </div>
+        <div class="text">AI予想の期待値が高めのレース</div>
+    </div>
+
+    <!-- Dòng 3 -->
+    <div class="row">
+        <div class="stars">
+            <span class="star-filled">★</span>
+            <span class="star-empty">★</span>
+            <span class="star-empty">★</span>
+        </div>
+        <div class="text">AI予想の期待値は高くないレース</div>
+    </div>
+
+</body>
+</html>
