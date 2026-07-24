@@ -486,11 +486,26 @@
     );
   }
 }
+  /* ===================== Click Mã ngựa / Kỵ thủ → native modal ===================== */
+  (function () {
+    // Lắng nghe sự kiện click trên toàn bộ document
+    document.addEventListener('click', function (e) {
+      // 1. Nếu click trúng hoặc nằm trong thẻ .horse-name
+      var horseNameEl = e.target.closest('.horse-name');
+      // 2. Nếu click trúng hoặc nằm trong thẻ .horse-jockey
+      var horseJockeyEl = e.target.closest('.horse-jockey');
+      
+      if (horseNameEl || horseJockeyEl) {
+        // Gọi hàm openModalUrl tương tự yêu cầu đề bài
+        openModalUrl('https://bannn-1018.github.io/odds-2rentan-demo/keiba/SpKeibaRaceInfo.do', '馬情報');
+      }
+    });
+  })();
   /* ===================== 自信度 help (?) → native modal ===================== */
   (function () {
     document.querySelectorAll('.help').forEach(function (el) {
       el.addEventListener('click', function () {
-        openModalUrl('https://bannn-1018.github.io/odds-2rentan-demo/keiba/SpConfidence.do', '自信度（★★★）について', 300);
+        openModalUrl('https://bannn-1018.github.io/odds-2rentan-demo/keiba/SpConfidence.do', '自信度（★★★）について', 375);
       });
     });
   })();
