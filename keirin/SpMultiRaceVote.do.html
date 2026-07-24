@@ -181,9 +181,9 @@ const MODES = [
 const CUR_MODE = "matome_race"; // trang này là màn レースまとめ投票
 /* screenId theo game + mode (native cung cấp). KHÔNG kèm joCd/kaisaiBi/raceNo — native giữ context. */
 const VOTE_MODE_SCREEN_ID = {
-  keiba:    { normal:"CA109-01", matome_shiki:"CA109-38", odds:"CA109-39", matome_race:"CA109-81" },
-  keirin:   { normal:"CA309-01", matome_shiki:"CA309-37", odds:"CA309-38", matome_race:"CA309-76" },
-  autorace: { normal:"CA509-01", matome_shiki:"CA509-29", odds:"CA509-30", matome_race:"CA509-62" },
+  keiba:    { normal:"CA109-01", matome_shiki:"CA109-38", odds:"CA107-01", matome_race:"CA109-81" },
+  keirin:   { normal:"CA309-01", matome_shiki:"CA309-37", odds:"CA307-01", matome_race:"CA309-76" },
+  autorace: { normal:"CA509-01", matome_shiki:"CA509-29", odds:"CA507-01", matome_race:"CA509-62" },
 };
 
 /* ====== BRIDGE (map theo tab 02_Bridge Contract) ====== */
@@ -402,7 +402,8 @@ function onModeChange(modeId){
   if(modeId===state.mode) return; // đang ở mode này -> no-op
   const screenId=(VOTE_MODE_SCREEN_ID[gameKey]||{})[modeId];
   if(!screenId){buildMode();return;}
-  const deeplink="odds-sop://notification?screenId="+screenId; // KHÔNG kèm joCd/kaisaiBi/raceNo
+  const deeplink="odds-sop://notification?action=1&screenId="+screenId
+    +"&joCd="+state.joCode+"&kaisaiBi="+state.kaisaiBi+"&raceNo="+state.raceNo; // context của race hiện tại
   pushLog("DEEPLINK",deeplink,{mode:modeId,screenId},"location.href");
   buildMode(); // giữ dropdown ở mode hiện tại tới khi native điều hướng
   window.location.href=deeplink;
