@@ -478,6 +478,21 @@
       });
     });
   })();
+  
+  (function () {
+    var buttons = document.querySelectorAll('button.ai-vote-btn');
+    buttons.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+      
+      // IN LOG RA CHROME INSPECT
+      console.log('=== Button Clicked ===');
+      console.log('Redirecting to:', 'odds-sop://notification?action=1&screenId=CA109-77&joCd=03&raceNo=6&kaisaiBi=20260723');
+        window.location.href =
+          'odds-sop://notification?action=1&screenId=CA109-77&joCd=03&raceNo=6&kaisaiBi=20260723';
+      });
+    });
+  })();
+  
   function openModalUrl(url, title, height) {
   if (window.flutter_inappwebview && window.flutter_inappwebview.callHandler) {
     window.flutter_inappwebview.callHandler(
