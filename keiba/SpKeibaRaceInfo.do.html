@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        /* Ép layout tự co theo content phục vụ cho modal native */
+        html, body {
+            height: auto !important;
+            min-height: 0 !important;
+            background-color: #ffffff;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            color: #333333;
+            padding: 12px;
+            font-size: 12px;
+            line-height: 1.4;
+            overflow: hidden;
+        }
+
+        /* 1. Header Banner tên ngựa */
+        .horse-header {
+            background: repeating-linear-gradient(45deg, #1f241a, #1f241a 4px, #2b3324 4px, #2b3324 8px);
+            color: #ffffff;
+            padding: 10px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 2px;
+            margin-bottom: 8px;
+        }
+        .horse-name {
+            font-size: 20px;
+            font-weight: bold;
+            font-style: italic;
+        }
+        .horse-meta {
+            font-size: 14px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .star-icon {
+            font-size: 20px;
+            line-height: 1;
+        }
+
+        /* 2. Tabs điều hướng */
+        .tabs-container {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+        .tab-btn {
+            flex: 1;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 13px;
+            text-decoration: none;
+            color: #333333;
+            background-color: #eeeeee;
+            border-radius: 4px;
+        }
+        .tab-btn.active {
+            background-color: #c1dc9e;
+            font-weight: 500;
+        }
+
+        /* 3. Tiêu đề phần & phân trang */
+        .section-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .btn-view-all {
+            border: 1px solid #333333;
+            background: linear-gradient(to bottom, #ffffff, #e6e6e6);
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            color: #333333;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        .pagination-info {
+            text-align: right;
+            color: #444444;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+        .pagination-info a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+
+        /* 4. Bảng danh sách lịch sử chạy (Race Rows) */
+        .race-list {
+            border-top: 1px solid #cccccc;
+        }
+        .race-row {
+            display: flex;
+            border-bottom: 1px solid #cccccc;
+            border-left: 1px solid #cccccc;
+            border-right: 1px solid #cccccc;
+        }
+        
+        /* Cột trái (Số thứ tự trận trước) */
+        .race-label-col {
+            width: 60px;
+            background-color: #59524c;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 6px 0;
+            font-size: 11px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        .play-box {
+            margin-top: 4px;
+            border: 2px solid #ffffff;
+            border-radius: 4px;
+            padding: 2px 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 44px;
+        }
+        .play-box span {
+            font-size: 8px;
+            font-weight: bold;
+            margin-top: 1px;
+        }
+
+        /* Cột phải (Thông tin chi tiết trận đấu) */
+        .race-info-col {
+            flex: 1;
+            padding: 6px 8px;
+            background-color: #ffffff;
+        }
+        .race-header-line {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+        .gate-number {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+        /* Màu nền ô số theo chuỗi trận gốc */
+        .bg-green { background-color: #cceecc; }
+        .bg-gray  { background-color: #eeeeee; }
+        .bg-white { background-color: #ffffff; border: 1px solid #ccc; }
+        .bg-blue  { background-color: #ccffff; }
+
+        .race-details {
+            font-size: 13px;
+            line-height: 1.3;
+        }
+        .race-date {
+            font-weight: 500;
+        }
+        .race-class {
+            font-weight: bold;
+        }
+        .race-stats-block {
+            font-size: 12px;
+            color: #111111;
+            line-height: 1.3;
+            margin-top: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. Tên ngựa & thông tin tuổi -->
+    <div class="horse-header">
+        <div class="horse-name">ジョーノベリスタ</div>
+        <div class="horse-meta">
+            <span>牝</span>|<span>9歳</span>
+            <span class="star-icon">☆</span>
+        </div>
+    </div>
+
+    <!-- 2. Tabs lựa chọn -->
+    <div class="tabs-container">
+        <a href="#" class="tab-btn">プロフィール</a>
+        <a href="#" class="tab-btn">成績</a>
+        <a href="#" class="tab-btn active">出走履歴</a>
+    </div>
+
+    <!-- 3. Tiêu đề danh sách và bộ lọc -->
+    <div class="section-title-row">
+        <div class="section-title">出走履歴</div>
+        <button class="btn-view-all">一覧表示</button>
+    </div>
+
+    <div class="pagination-info">
+        1件 ～ 10件（全107件） &laquo; 前の10件 <a href="#">次の10件 &raquo;</a>
+    </div>
+
+    <!-- 4. Danh sách các hàng kết quả -->
+    <div class="race-list">
+        
+        <!-- Trận 1: 前走 -->
+        <div class="race-row">
+            <div class="race-label-col">
+                <div>前走</div>
+                <div class="play-box">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="#ffffff"><path d="M8 5v14l11-7z"/></svg>
+                    <span>PLAY</span>
+                </div>
+            </div>
+            <div class="race-info-col">
+                <div class="race-header-line">
+                    <div class="gate-number bg-green">3</div>
+                    <div class="race-details">
+                        <div class="race-date">2025年5月23日</div>
+                        <div class="race-class">Ｃ３三Ｃ３三４歳以上</div>
+                    </div>
+                </div>
+                <div class="race-stats-block">
+                    4人気 園田ダ1400 良<br>
+                    11頭6番 463kg 田野豊55.0 7-6-5<br>
+                    1:35.6 (42) エレガントフル (1.5)
+                </div>
+            </div>
+        </div>
+
+        <!-- Trận 2: 前々走 -->
+        <div class="race-row">
+            <div class="race-label-col">
+                <div>前々走</div>
+                <div class="play-box">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="#ffffff"><path d="M8 5v14l11-7z"/></svg>
+                    <span>PLAY</span>
+                </div>
+            </div>
+            <div class="race-info-col">
+                <div class="race-header-line">
+                    <div class="gate-number bg-gray">8</div>
+                    <div class="race-details">
+                        <div class="race-date">2025年5月8日</div>
+                        <div class="race-class">Ｃ３二Ｃ３二４歳以上</div>
+                    </div>
+                </div>
+                <div class="race-stats-block">
+                    2人気 園田ダ1400 稍重<br>
+                    10頭7番 464kg 吉村智55.0 9-9-9<br>
+                    1:36.6 (41.5) テーオーモンプ (2.0)
+                </div>
+            </div>
+        </div>
+
+        <!-- Trận 3: 3走前 -->
+        <div class="race-row">
+            <div class="race-label-col">
+                <div>3走前</div>
+                <div class="play-box">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="#ffffff"><path d="M8 5v14l11-7z"/></svg>
+                    <span>PLAY</span>
+                </div>
+            </div>
+            <div class="race-info-col">
+                <div class="race-header-line">
+                    <div class="gate-number bg-white">6</div>
+                    <div class="race-details">
+                        <div class="race-date">2025年4月22日</div>
+                        <div class="race-class">Ｃ３二Ｃ３二４歳以上</div>
+                    </div>
+                </div>
+                <div class="race-stats-block">
+                    5人気 園田ダ1400 良<br>
+                    12頭1番 461kg ▲米玉燕52.0 11-11-10<br>
+                    1:36.1 (40.3) クレスコユウシ (2.1)
+                </div>
+            </div>
+        </div>
+
+        <!-- Trận 4: 4走前 -->
+        <div class="race-row">
+            <div class="race-label-col">
+                <div>4走前</div>
+                <div class="play-box">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="#ffffff"><path d="M8 5v14l11-7z"/></svg>
+                    <span>PLAY</span>
+                </div>
+            </div>
+            <div class="race-info-col">
+                <div class="race-header-line">
+                    <div class="gate-number bg-blue">2</div>
+                    <div class="race-details">
+                        <div class="race-date">2025年4月8日</div>
+                        <div class="race-class">Ｃ３三Ｃ３三４歳以上</div>
+                    </div>
+                </div>
+                <div class="race-stats-block">
+                    4人気 園田ダ1400 良<br>
+                    11頭6番 461kg 吉村智55.0 7-8-7<br>
+                    1:35.4 (41.9) メイショウウナ (1.4)
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>
