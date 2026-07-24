@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<!-- saved from url=(0087)https://s3-op-static-web.s3.ap-southeast-1.amazonaws.com/keiba/SpMultiTypeVoteW.do.html -->
+<html lang="ja"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>賭式まとめ投票 - KeibaVote MultiType</title>
+  <style>
+    /* ===== Tokens (map từ constant/colors của app) ===== */
+    :root {
+      --gray-f4: #F4F4F4;   /* AppBaseColors.grayF4F4F4 */
+      --gray-de: #DEDEDE;   /* AppBaseColors.grayDEDEDE - border bảng (2px) */
+      --gray-ee: #EEEEEE;   /* AppBaseColors.grayEEEEEE - divider odds list */
+      --gray-c6: #C6C6C8;   /* AppBaseColors.grayC6C6C8 - row 取消 / switch off / disable */
+      --gray-99: #999999;   /* FrameNumbers.one.borderColor / gray999999 */
+      --black-33: #333333;  /* AppBaseColors.black333333 / TextColors.black */
+      --white: #FFFFFF;
+      --green: #00943C;     /* SuccessColors.green / green00943C */
+      --green-bg: #EAF9F0;  /* SuccessColors.greenBg - row đã chọn */
+      --red-odds: #E83D3D;  /* AppSubColors.redE83D3D - odds 1.0~9.9 */
+      --red-jockey: #E83D3D;/* 騎手変更 */
+      --cv-orange: #E7750C; /* CvColors.orange - nút cart */
+      /* Kích thước cột bảng (map từ _KeibaVoteMultiTypeTitle) */
+      --w-frame: 22px;
+      --w-horse: 22px;
+      --w-odds: 49px;
+      --w-check: 46px;
+      --row-h: 47px;
+      --title-h: 33px;
+      --border-w: 2px;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body {
+      margin: 0; padding: 0;
+      background: var(--gray-f4);
+      font-family: "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", "Yu Gothic", system-ui, sans-serif;
+      color: var(--black-33);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .screen {
+      max-width: 420px;
+      margin: 0 auto;
+      background: var(--gray-f4);
+      min-height: 100vh;
+      position: relative;
+    }
+
+    /* ===== Header thông tin race + dropdown 投票種別 (VoteHeaderView) ===== */
+    .vote-header {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      height: 52px;
+      background: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 12px;
+      border-bottom: 1px solid var(--gray-de);
+    }
+    .race-info { display: flex; flex-direction: column; justify-content: center; gap: 2px; }
+    .race-title { font-size: 14px; font-weight: 600; color: var(--black-33); }
+    .race-status { font-size: 12px; font-weight: 600; color: var(--green); }
+    .race-status.warning { color: var(--red-odds); }
+
+    .bet-dropdown { position: relative; }
+    .bet-dd-btn {
+      width: 151px; height: 40px; padding: 0 9px;
+      background: var(--white);
+      border: 1px solid var(--gray-de);
+      border-radius: 6px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.10);
+      display: flex; align-items: center; gap: 4px;
+      font-size: 12px; font-weight: 300; color: var(--black-33);
+      cursor: pointer;
+    }
+    .bet-dd-btn.open { border-color: var(--black-33); }
+    .bet-dd-btn .ic-switch { font-size: 13px; }
+    .bet-dd-btn .dd-text { flex: 1; text-align: left; white-space: nowrap; }
+    .bet-dd-btn .ic-down { font-size: 9px; }
+
+    .bet-dd-menu {
+      position: absolute; top: 44px; right: 0; width: 151px;
+      background: var(--white);
+      border: 1px solid var(--gray-de);
+      border-radius: 6px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.10);
+      overflow: hidden; list-style: none; margin: 0; padding: 0; z-index: 40;
+    }
+    .bet-dd-menu[hidden] { display: none; }
+    .bet-dd-menu li {
+      height: 40px; display: flex; align-items: center; gap: 4px;
+      padding-left: 8px; font-size: 12px; font-weight: 300; color: var(--black-33);
+      border-bottom: 1px solid var(--gray-ee); cursor: pointer;
+    }
+    .bet-dd-menu li:last-child { border-bottom: none; }
+    .bet-dd-menu li .ck { width: 12px; font-size: 10px; visibility: hidden; }
+    .bet-dd-menu li.selected .ck { visibility: visible; }
+
+    /* ===== Bộ chọn 賭式 (VoteSelectBetTypeView) ===== */
+    .bet-types { display: flex; flex-wrap: wrap; gap: 4px; padding: 8px 12px 4px; }
+    .bet-btn {
+      flex: 1 1 0; min-width: 56px; height: 48px;
+      border-radius: 4px; border: 1px solid transparent;
+      background: var(--white); color: var(--black-33);
+      font-size: 11px; font-weight: 600;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 2px; cursor: pointer; user-select: none;
+    }
+    .bet-btn .check { display: none; font-size: 9px; line-height: 1; }
+    .bet-btn.selected { background: var(--black-33); color: var(--white); border-color: var(--black-33); }
+    .bet-btn.selected .check { display: block; }
+    .bet-btn.disabled { background: var(--white); color: var(--gray-c6); border-color: var(--gray-c6); cursor: default; }
+
+    /* ===== Bảng ngựa ===== */
+    .table { background: var(--white); border-top: var(--border-w) solid var(--gray-de); border-left: var(--border-w) solid var(--gray-de); }
+    .thead { display: flex; }
+    .th {
+      background: var(--gray-f4); height: var(--title-h);
+      display: flex; align-items: center; padding-left: 4px;
+      font-size: 10px; font-weight: 600; line-height: 1.15; white-space: pre-line;
+      border-right: var(--border-w) solid var(--gray-de);
+      border-bottom: var(--border-w) solid var(--gray-de);
+    }
+    .th.frame  { width: var(--w-frame); justify-content: center; padding-left: 0; text-align: center; }
+    .th.horse  { width: var(--w-horse); justify-content: center; padding-left: 0; text-align: center; }
+    .th.name   { flex: 1; min-width: 0; }
+    .th.odds   { width: var(--w-odds); }
+    .th.check  { width: var(--w-check); justify-content: center; padding-left: 0; text-align: center; }
+
+    .frame-group { display: flex; }
+    .frame-cell {
+      width: var(--w-frame); display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700;
+      border-right: var(--border-w) solid var(--gray-de);
+      border-bottom: var(--border-w) solid var(--gray-de);
+    }
+    .horses { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+    .horse-row { display: flex; height: var(--row-h); background: var(--white); }
+    .horse-row.selected { background: var(--green-bg); }
+    .horse-row.cancel   { background: var(--gray-c6); }
+
+    .cell { border-right: var(--border-w) solid var(--gray-de); border-bottom: var(--border-w) solid var(--gray-de); display: flex; align-items: center; }
+    .cell.horse-no { width: var(--w-horse); justify-content: center; font-size: 11px; font-weight: 700; }
+    .cell.name {
+      flex: 1; min-width: 0; flex-direction: column; align-items: flex-start; justify-content: center;
+      padding-left: 8px; gap: 1px; overflow: hidden;
+    }
+    .cell.name .horse-name {
+      font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 3px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+    }
+    .cell.name .arrow { color: #151515; font-size: 10px; }
+    .cell.name .jockey { font-size: 11px; font-weight: 600; color: #0A72EF; }
+    .cell.name .jockey.changed { color: var(--red-jockey); }
+
+    .cell.odds { width: var(--w-odds); justify-content: flex-end; padding-right: 6px; font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .cell.odds.hot { color: var(--red-odds); }
+    .cell.odds.cancel-odds { color: var(--black-33); }
+
+    .cell.check { width: var(--w-check); justify-content: center; }
+
+    .cb { width: 24px; height: 24px; border: 2px solid var(--gray-99); border-radius: 3px; background: var(--white); position: relative; cursor: pointer; }
+    .cb.checked { background: var(--green); border-color: var(--green); }
+    .cb.checked::after { content: ""; position: absolute; left: 7px; top: 3px; width: 5px; height: 10px; border: solid var(--white); border-width: 0 2px 2px 0; transform: rotate(45deg); }
+    .cb.disabled { background: var(--gray-c6); border-color: var(--gray-c6); cursor: default; }
+
+    /* ===== Footer controls (マルチ・裏目 / クリア / 全選択) ===== */
+    .footer { display: flex; justify-content: space-between; align-items: center; padding: 12px 8px 0 12px; }
+    .multi-reverse { display: flex; align-items: center; gap: 6px; }
+    .switch { width: 42px; height: 24px; border-radius: 12px; background: var(--gray-c6); display: flex; align-items: center; padding: 0 3px; cursor: pointer; transition: background .2s; }
+    .switch.on { background: var(--green); justify-content: flex-end; }
+    .switch .thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--white); }
+    .multi-reverse .label { font-size: 12px; font-weight: 600; color: var(--black-33); }
+
+    .footer-right { display: flex; align-items: center; }
+    .brd-btn { height: 32px; border: 1px solid var(--black-33); border-radius: 4px; background: var(--white); color: var(--black-33); font-size: 10px; font-weight: 600; display: flex; align-items: center; justify-content: center; cursor: pointer; user-select: none; }
+    .brd-btn.clear { width: 54px; }
+    .brd-btn.select-all { width: 32px; font-size: 12px; }
+    .brd-btn.select-all.on { background: var(--green); color: var(--white); border-color: var(--green); }
+
+    /* ===== オッズ一覧 (buildOddsListSlivers) ===== */
+    .odds-list { margin-top: 32px; }
+    .odds-list-header { display: flex; align-items: center; padding: 0 12px 8px; }
+    .olh-title { font-size: 16px; font-weight: 700; color: #000; }
+    .olh-time { margin-left: 8px; font-size: 12px; font-weight: 300; color: var(--black-33); }
+    .olh-reload { margin-left: 4px; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 16px; color: var(--gray-99); cursor: pointer; }
+    .olh-spacer { flex: 1; }
+    .sort-btn {
+      height: 32px; padding: 0 8px; border: 1px solid var(--black-33); border-radius: 4px;
+      background: var(--white); color: var(--black-33); font-size: 10px; font-weight: 600;
+      display: flex; align-items: center; gap: 4px; cursor: pointer; white-space: nowrap;
+    }
+    .sort-btn .ic-sort { font-size: 11px; }
+
+    .odds-empty { background: var(--white); padding: 16px; text-align: center; font-size: 14px; color: #000; }
+
+    .odds-group { background: var(--white); }
+    .olb-header { padding: 16px 16px 0; font-size: 12px; font-weight: 700; color: #000; }
+    .olb-divider { height: 1px; background: var(--gray-ee); margin: 8px 16px 0; }
+    .kaime-row { height: 42px; padding: 0 16px; display: flex; align-items: center; border-bottom: 1px solid var(--gray-ee); }
+    .kaime-combo { flex: 1; display: flex; align-items: center; gap: 0; }
+    .kaime-odds { font-size: 14px; font-weight: 400; font-variant-numeric: tabular-nums; }
+    .kaime-odds.hot { color: var(--red-odds); }
+    .chip {
+      width: 22px; height: 22px; border-radius: 4px;
+      background: var(--gray-f4); border: 1px solid var(--gray-de); color: var(--gray-99);
+      font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center;
+    }
+    .conn { width: 17px; display: flex; align-items: center; justify-content: center; color: var(--black-33); }
+    .conn.arrow { font-size: 15px; }
+    .conn.dash::before { content: ""; width: 5px; height: 2px; background: var(--black-33); display: block; }
+    .olb-space { height: 44px; background: var(--white); }
+
+    /* ===== SelectionCartBar (bottom bar 2 nút keiba) ===== */
+    .cart-bar {
+      position: sticky; bottom: 0; z-index: 25;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+      border-top: 1px solid rgba(0, 0, 0, 0.06);
+      box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.10);
+      border-bottom: 1px solid var(--gray-ee);
+      padding: 8px 12px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .cart-bar[hidden] { display: none; }
+    .cart-info { display: flex; flex-direction: column; }
+    .cart-ways { font-size: 12px; font-weight: 600; color: var(--black-33); }
+    .cart-ways .num { font-variant-numeric: tabular-nums; }
+    .cart-odds { font-size: 10px; font-weight: 600; color: var(--gray-99); font-variant-numeric: tabular-nums; }
+    .cart-actions { display: flex; align-items: center; gap: 8px; }
+    .cv-btn {
+      width: 106px; height: 40px; border-radius: 6px;
+      font-size: 12px; font-weight: 600;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; user-select: none;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+    }
+    .cv-btn.save   { background: var(--white); color: var(--cv-orange); border: 1px solid var(--cv-orange); }
+    .cv-btn.amount { background: var(--cv-orange); color: var(--white); border: 1px solid var(--cv-orange); }
+    .cart-bar.invalid .cv-btn { box-shadow: none; }
+    .cart-bar.invalid .cv-btn.save { background: var(--gray-f4); color: var(--gray-c6); border-color: var(--gray-c6); }
+    .cart-bar.invalid .cv-btn.amount { background: var(--gray-c6); color: var(--white); border-color: var(--gray-c6); }
+  </style>
+</head>
+<body>
+  <div class="screen">
+
+    <!-- Header thông tin race + dropdown 投票種別 (VoteHeaderView) -->
+    <header class="vote-header">
+      <div class="race-info">
+        <div class="race-title">京都 1R</div>
+        <div class="race-status">発売中</div>
+      </div>
+      <div class="bet-dropdown">
+        <button class="bet-dd-btn" id="betDdBtn">
+          <span class="ic-switch">⇅</span>
+          <span class="dd-text" id="betDdText">✓通常投票</span>
+          <span class="ic-down">▼</span>
+        </button>
+        <ul class="bet-dd-menu" id="betDdMenu" hidden="">
+          <li data-idx="0" class=""><span class="ck">✓</span>賭式まとめ投票</li>
+          <li data-idx="1" class="selected"><span class="ck">✓</span>通常投票</li>
+          <li data-idx="2" class=""><span class="ck">✓</span>オッズ投票</li>
+          <li data-idx="3"><span class="ck">✓</span>レースまとめ投票</li>
+        </ul>
+      </div>
+    </header>
+
+    <!-- 賭式選択 (VoteSelectBetTypeView) -->
+    <div class="bet-types" id="betTypes">
+      <div class="bet-btn selected" data-bet="馬連"><span class="check">✓</span>馬連</div>
+      <div class="bet-btn" data-bet="ワイド">ワイド</div>
+      <div class="bet-btn selected" data-bet="馬単"><span class="check">✓</span>馬単</div>
+      <div class="bet-btn" data-bet="3連複">3連複</div>
+      <div class="bet-btn" data-bet="3連単">3連単</div>
+      <div class="bet-btn disabled" data-bet="枠連">枠連</div>
+    </div>
+
+    <!-- テーブル -->
+    <div class="table" id="voteTable">
+      <div class="thead">
+        <div class="th frame">枠
+番</div>
+        <div class="th horse">馬
+番</div>
+        <div class="th name">馬名
+騎手名（負担重量）</div>
+        <div class="th odds">単勝
+オッズ</div>
+        <div class="th check">1頭目</div>
+        <div class="th check">2頭目</div>
+        <div class="th check">3頭目</div>
+      </div>
+      <div id="tbody"><div class="frame-group"><div class="frame-cell" style="height: 47px;background:#FFFFFF;color:#333333;">1</div><div class="horses"><div class="horse-row selected" data-horse="1"><div class="cell horse-no">1</div><div class="cell name"><span class="horse-name">ダノンザキッド<span class="arrow">▶</span></span><span class="jockey">武豊(57.0)</span></div><div class="cell odds hot">3.5</div><div class="cell check"><div class="cb checked" data-col="1" data-horse="1"></div></div><div class="cell check"><div class="cb" data-col="2" data-horse="1"></div></div><div class="cell check"><div class="cb" data-col="3" data-horse="1"></div></div></div></div></div><div class="frame-group"><div class="frame-cell" style="height: 47px;background:#4F4F4F;color:#FFFFFF;">2</div><div class="horses"><div class="horse-row" data-horse="2"><div class="cell horse-no">2</div><div class="cell name"><span class="horse-name">エフフォーリア<span class="arrow">▶</span></span><span class="jockey">ルメール(57.0)</span></div><div class="cell odds hot">5.2</div><div class="cell check"><div class="cb" data-col="1" data-horse="2"></div></div><div class="cell check"><div class="cb" data-col="2" data-horse="2"></div></div><div class="cell check"><div class="cb" data-col="3" data-horse="2"></div></div></div></div></div><div class="frame-group"><div class="frame-cell" style="height: 47px;background:#E24E4E;color:#FFFFFF;">3</div><div class="horses"><div class="horse-row selected" data-horse="3"><div class="cell horse-no">3</div><div class="cell name"><span class="horse-name">タイトルホルダー<span class="arrow">▶</span></span><span class="jockey">横山和生(57.0)</span></div><div class="cell odds hot">8.9</div><div class="cell check"><div class="cb" data-col="1" data-horse="3"></div></div><div class="cell check"><div class="cb checked" data-col="2" data-horse="3"></div></div><div class="cell check"><div class="cb" data-col="3" data-horse="3"></div></div></div></div></div><div class="frame-group"><div class="frame-cell" style="height: 47px;background:#4A8EDE;color:#FFFFFF;">4</div><div class="horses"><div class="horse-row" data-horse="4"><div class="cell horse-no">4</div><div class="cell name"><span class="horse-name">ジャックドール<span class="arrow">▶</span></span><span class="jockey">藤岡佑介(57.0)</span></div><div class="cell odds">12.4</div><div class="cell check"><div class="cb" data-col="1" data-horse="4"></div></div><div class="cell check"><div class="cb" data-col="2" data-horse="4"></div></div><div class="cell check"><div class="cb" data-col="3" data-horse="4"></div></div></div></div></div><div class="frame-group"><div class="frame-cell" style="height: 47px;background:#FCC539;color:#333333;">5</div><div class="horses"><div class="horse-row cancel" data-horse="5"><div class="cell horse-no">5</div><div class="cell name"><span class="horse-name">パンサラッサ<span class="arrow">▶</span></span><span class="jockey">吉田豊(57.0)</span></div><div class="cell odds cancel-odds">---</div><div class="cell check"><div class="cb disabled" data-col="1" data-horse="5"></div></div><div class="cell check"><div class="cb disabled" data-col="2" data-horse="5"></div></div><div class="cell check"><div class="cb disabled" data-col="3" data-horse="5"></div></div></div></div></div><div class="frame-group"><div class="frame-cell" style="height: 47px;background:#3F9D65;color:#FFFFFF;">6</div><div class="horses"><div class="horse-row" data-horse="6"><div class="cell horse-no">6</div><div class="cell name"><span class="horse-name">ヒシイグアス<span class="arrow">▶</span></span><span class="jockey">松山弘平(57.0)</span></div><div class="cell odds">15.8</div><div class="cell check"><div class="cb" data-col="1" data-horse="6"></div></div><div class="cell check"><div class="cb" data-col="2" data-horse="6"></div></div><div class="cell check"><div class="cb" data-col="3" data-horse="6"></div></div></div></div></div><div class="frame-group"><div class="frame-cell" style="height: 47px;background:#E47131;color:#FFFFFF;">7</div><div class="horses"><div class="horse-row" data-horse="7"><div class="cell horse-no">7</div><div class="cell name"><span class="horse-name">ポタジェ<span class="arrow">▶</span></span><span class="jockey changed">吉田隼人(57.0)</span></div><div class="cell odds">22.1</div><div class="cell check"><div class="cb" data-col="1" data-horse="7"></div></div><div class="cell check"><div class="cb" data-col="2" data-horse="7"></div></div><div class="cell check"><div class="cb" data-col="3" data-horse="7"></div></div></div></div></div><div class="frame-group"><div class="frame-cell" style="height: 94px;background:#DE649E;color:#FFFFFF;">8</div><div class="horses"><div class="horse-row selected" data-horse="8"><div class="cell horse-no">8</div><div class="cell name"><span class="horse-name">レイパパレ<span class="arrow">▶</span></span><span class="jockey">川田将雅(55.0)</span></div><div class="cell odds hot">6.7</div><div class="cell check"><div class="cb checked" data-col="1" data-horse="8"></div></div><div class="cell check"><div class="cb" data-col="2" data-horse="8"></div></div><div class="cell check"><div class="cb" data-col="3" data-horse="8"></div></div></div><div class="horse-row" data-horse="9"><div class="cell horse-no">9</div><div class="cell name"><span class="horse-name">サリオス<span class="arrow">▶</span></span><span class="jockey">幸英明(57.0)</span></div><div class="cell odds">45.6</div><div class="cell check"><div class="cb" data-col="1" data-horse="9"></div></div><div class="cell check"><div class="cb" data-col="2" data-horse="9"></div></div><div class="cell check"><div class="cb" data-col="3" data-horse="9"></div></div></div></div></div></div>
+    </div>
+
+    <!-- コントロール (マルチ・裏目 / クリア / 全選択) -->
+    <div class="footer">
+      <div class="multi-reverse">
+        <div class="switch" id="multiSwitch"><div class="thumb"></div></div>
+        <span class="label">マルチ・裏目</span>
+      </div>
+      <div class="footer-right">
+        <div class="brd-btn clear" id="clearBtn">クリア</div>
+        <div style="width:23px"></div>
+        <div class="brd-btn select-all" data-col="1">全</div>
+        <div style="width:14px"></div>
+        <div class="brd-btn select-all" data-col="2">全</div>
+        <div style="width:14px"></div>
+        <div class="brd-btn select-all" data-col="3">全</div>
+        <div style="width:8px"></div>
+      </div>
+    </div>
+
+    <!-- オッズ一覧 (buildOddsListSlivers) -->
+    <div class="odds-list">
+      <div class="odds-list-header">
+        <span class="olh-title">オッズ一覧</span>
+        <span class="olh-time" id="olhTime">14:32現在</span>
+        <span class="olh-reload" id="olhReload" title="更新">↻</span>
+        <span class="olh-spacer"></span>
+        <button class="sort-btn" id="sortBtn"><span class="ic-sort">⇅</span><span id="sortText">番号順</span></button>
+      </div>
+      <div id="oddsBody"><div class="odds-group"><div class="olb-header">馬連</div><div class="olb-divider"></div><div class="kaime-row"><div class="kaime-combo"><div class="chip">1</div><div class="conn dash"></div><div class="chip">3</div></div><div class="kaime-odds">50.3</div></div><div class="kaime-row"><div class="kaime-combo"><div class="chip">3</div><div class="conn dash"></div><div class="chip">8</div></div><div class="kaime-odds">35.9</div></div><div class="olb-space"></div></div><div class="odds-group"><div class="olb-header">馬単</div><div class="olb-divider"></div><div class="kaime-row"><div class="kaime-combo"><div class="chip">1</div><div class="conn arrow">›</div><div class="chip">3</div></div><div class="kaime-odds">50.3</div></div><div class="kaime-row"><div class="kaime-combo"><div class="chip">8</div><div class="conn arrow">›</div><div class="chip">3</div></div><div class="kaime-odds">20.4</div></div><div class="olb-space"></div></div></div>
+    </div>
+
+    <!-- SelectionCartBar (bottom bar 2 nút, ẩn khi chưa có買い目) -->
+    <div class="cart-bar" id="cartBar">
+      <div class="cart-info">
+        <div class="cart-ways"><span class="num" id="cartWays">4</span>通り 選択中</div>
+        <div class="cart-odds" id="cartOdds">20.4~50.3</div>
+      </div>
+      <div class="cart-actions">
+        <div class="cv-btn save" id="saveBtn">買い目を保存</div>
+        <div class="cv-btn amount" id="amountBtn">金額入力へ</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== Dữ liệu mẫu (map KeibaOddsTanshouFukushouTableData + KeibaTanshouFukushou) =====
+    const TABLE = [
+      { wakuNo: 1, horses: [{ horseNo: 1, horseName: 'ダノンザキッド', jockey: '武豊', weight: '57.0', odds: '3.5' }]},
+      { wakuNo: 2, horses: [{ horseNo: 2, horseName: 'エフフォーリア', jockey: 'ルメール', weight: '57.0', odds: '5.2' }]},
+      { wakuNo: 3, horses: [{ horseNo: 3, horseName: 'タイトルホルダー', jockey: '横山和生', weight: '57.0', odds: '8.9' }]},
+      { wakuNo: 4, horses: [{ horseNo: 4, horseName: 'ジャックドール', jockey: '藤岡佑介', weight: '57.0', odds: '12.4' }]},
+      { wakuNo: 5, horses: [{ horseNo: 5, horseName: 'パンサラッサ', jockey: '吉田豊', weight: '57.0', odds: '---', cancel: true }]},
+      { wakuNo: 6, horses: [{ horseNo: 6, horseName: 'ヒシイグアス', jockey: '松山弘平', weight: '57.0', odds: '15.8' }]},
+      { wakuNo: 7, horses: [{ horseNo: 7, horseName: 'ポタジェ', jockey: '吉田隼人', weight: '57.0', odds: '22.1', jockeyChange: true }]},
+      { wakuNo: 8, horses: [
+        { horseNo: 8, horseName: 'レイパパレ', jockey: '川田将雅', weight: '55.0', odds: '6.7' },
+        { horseNo: 9, horseName: 'サリオス', jockey: '幸英明', weight: '57.0', odds: '45.6' },
+      ]},
+    ];
+
+    // Trạng thái chọn ngựa (map selectVote1st/2nd/3rd trong ViewModel)
+    const selected = { 1: new Set(), 2: new Set(), 3: new Set() };
+    // 賭式 đang chọn (map selectBetTypes) — thứ tự cần cho 3連複/3連単
+    const selectedBets = ['馬連', '馬単'];
+    // 0: 番号順, 1: オッズの高い順, 2: オッズの低い順 (getSortButtonConfiguration)
+    let sortId = 0;
+
+    function isHotOdds(v) { const n = parseFloat(v); return !isNaN(n) && n >= 1.0 && n <= 9.9; }
+
+    function frameStyle(n) {
+      const map = {
+        1: ['#FFFFFF', '#333333'], 2: ['#4F4F4F', '#FFFFFF'], 3: ['#E24E4E', '#FFFFFF'],
+        4: ['#4A8EDE', '#FFFFFF'], 5: ['#FCC539', '#333333'], 6: ['#3F9D65', '#FFFFFF'],
+        7: ['#E47131', '#FFFFFF'], 8: ['#DE649E', '#FFFFFF'], 9: ['#BA66E2', '#FFFFFF'],
+      };
+      const [bg, fg] = map[n] || map[1];
+      return `background:${bg};color:${fg};`;
+    }
+
+    // ===== Render bảng chọn ngựa =====
+    function renderTable() {
+      const tbody = document.getElementById('tbody');
+      tbody.innerHTML = '';
+      TABLE.forEach(group => {
+        const groupEl = document.createElement('div');
+        groupEl.className = 'frame-group';
+
+        const frameCell = document.createElement('div');
+        frameCell.className = 'frame-cell';
+        frameCell.style.height = (47 * group.horses.length) + 'px';
+        frameCell.setAttribute('style', frameCell.getAttribute('style') + frameStyle(group.wakuNo));
+        frameCell.textContent = group.wakuNo;
+        groupEl.appendChild(frameCell);
+
+        const horsesEl = document.createElement('div');
+        horsesEl.className = 'horses';
+        group.horses.forEach(h => {
+          const row = document.createElement('div');
+          row.className = 'horse-row' + (h.cancel ? ' cancel' : '');
+          row.dataset.horse = h.horseNo;
+
+          const noCell = document.createElement('div');
+          noCell.className = 'cell horse-no';
+          noCell.textContent = h.horseNo;
+
+          const nameCell = document.createElement('div');
+          nameCell.className = 'cell name';
+          nameCell.innerHTML =
+            `<span class="horse-name">${h.horseName}<span class="arrow">&#9654;</span></span>` +
+            `<span class="jockey${h.jockeyChange ? ' changed' : ''}">${h.jockey}(${h.weight})</span>`;
+
+          const oddsCell = document.createElement('div');
+          oddsCell.className = 'cell odds' + (h.cancel ? ' cancel-odds' : (isHotOdds(h.odds) ? ' hot' : ''));
+          oddsCell.textContent = h.odds;
+
+          const rowCells = [noCell, nameCell, oddsCell];
+          [1, 2, 3].forEach(col => {
+            const cell = document.createElement('div');
+            cell.className = 'cell check';
+            const cb = document.createElement('div');
+            cb.className = 'cb' + (h.cancel ? ' disabled' : '');
+            cb.dataset.col = col; cb.dataset.horse = h.horseNo;
+            if (!h.cancel) cb.addEventListener('click', () => toggle(col, h.horseNo));
+            cell.appendChild(cb);
+            rowCells.push(cell);
+          });
+          rowCells.forEach(c => row.appendChild(c));
+          horsesEl.appendChild(row);
+        });
+        groupEl.appendChild(horsesEl);
+        tbody.appendChild(groupEl);
+      });
+    }
+
+    function toggle(col, horseNo) {
+      if (selected[col].has(horseNo)) selected[col].delete(horseNo);
+      else selected[col].add(horseNo);
+      syncAll();
+    }
+
+    function allHorseNos() { return TABLE.flatMap(g => g.horses.filter(h => !h.cancel).map(h => h.horseNo)); }
+
+    // ===== Sinh tổ hợp kaime (mô phỏng tenkai từ selection theo từng 賭式) =====
+    // Odds giả lập cố định (deterministic) theo tổ hợp — thay cho API tenkai thật.
+    function fakeOdds(nums) {
+      let h = nums.length * 13;
+      nums.forEach((n, i) => { h += n * (i + 3) * 31; });
+      const v = (h % 950) / 10 + 1.2;
+      return v.toFixed(1);
+    }
+
+    function combos2(unordered) {
+      const out = []; const seen = new Set();
+      selected[1].forEach(a => selected[2].forEach(b => {
+        if (a === b) return;
+        const key = unordered ? [a, b].sort((x, y) => x - y).join('-') : a + '→' + b;
+        if (seen.has(key)) return;
+        seen.add(key);
+        out.push(unordered ? [a, b].sort((x, y) => x - y) : [a, b]);
+      }));
+      return out;
+    }
+    function combos3(unordered) {
+      const out = []; const seen = new Set();
+      selected[1].forEach(a => selected[2].forEach(b => selected[3].forEach(c => {
+        const s = new Set([a, b, c]); if (s.size < 3) return;
+        const arr = unordered ? [a, b, c].sort((x, y) => x - y) : [a, b, c];
+        const key = arr.join(unordered ? '-' : '→');
+        if (seen.has(key)) return;
+        seen.add(key);
+        out.push(arr);
+      })));
+      return out;
+    }
+
+    function buildKaimeForBet(bet) {
+      let sep = '-', arrs = [];
+      switch (bet) {
+        case '馬連': case 'ワイド': arrs = combos2(true); sep = '-'; break;
+        case '馬単': arrs = combos2(false); sep = '→'; break;
+        case '3連複': arrs = combos3(true); sep = '-'; break;
+        case '3連単': arrs = combos3(false); sep = '→'; break;
+        default: return [];
+      }
+      return arrs.map(nums => ({ nums, view: nums.join(sep), sep, odds: fakeOdds(nums) }));
+    }
+
+    function sortKaime(list) {
+      const copy = list.slice();
+      if (sortId === 1) copy.sort((a, b) => parseFloat(b.odds) - parseFloat(a.odds));
+      else if (sortId === 2) copy.sort((a, b) => parseFloat(a.odds) - parseFloat(b.odds));
+      // sortId 0: 番号順 — giữ nguyên thứ tự sinh (đã theo số)
+      return copy;
+    }
+
+    // ===== Render オッズ一覧 =====
+    function renderOddsList() {
+      const body = document.getElementById('oddsBody');
+      body.innerHTML = '';
+
+      const groups = selectedBets
+        .map(bet => ({ bet, kaime: buildKaimeForBet(bet) }))
+        .filter(g => g.kaime.length > 0);
+
+      const totalWays = groups.reduce((s, g) => s + g.kaime.length, 0);
+
+      if (totalWays === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'odds-empty';
+        empty.textContent = '買い目を選択してください';
+        body.appendChild(empty);
+        updateCartBar(0, null, null);
+        return;
+      }
+
+      let minOdds = Infinity, maxOdds = -Infinity;
+
+      groups.forEach(g => {
+        const groupEl = document.createElement('div');
+        groupEl.className = 'odds-group';
+
+        const header = document.createElement('div');
+        header.className = 'olb-header';
+        header.textContent = g.bet;
+        groupEl.appendChild(header);
+
+        const divider = document.createElement('div');
+        divider.className = 'olb-divider';
+        groupEl.appendChild(divider);
+
+        sortKaime(g.kaime).forEach(k => {
+          const o = parseFloat(k.odds);
+          minOdds = Math.min(minOdds, o); maxOdds = Math.max(maxOdds, o);
+
+          const row = document.createElement('div');
+          row.className = 'kaime-row';
+
+          const combo = document.createElement('div');
+          combo.className = 'kaime-combo';
+          k.nums.forEach((n, i) => {
+            const chip = document.createElement('div');
+            chip.className = 'chip';
+            chip.textContent = n;
+            combo.appendChild(chip);
+            if (i < k.nums.length - 1) {
+              const conn = document.createElement('div');
+              conn.className = 'conn ' + (k.sep === '→' ? 'arrow' : 'dash');
+              if (k.sep === '→') conn.textContent = '›';
+              combo.appendChild(conn);
+            }
+          });
+
+          const odds = document.createElement('div');
+          odds.className = 'kaime-odds' + (isHotOdds(k.odds) ? ' hot' : '');
+          odds.textContent = k.odds;
+
+          row.appendChild(combo);
+          row.appendChild(odds);
+          groupEl.appendChild(row);
+        });
+
+        const space = document.createElement('div');
+        space.className = 'olb-space';
+        groupEl.appendChild(space);
+
+        body.appendChild(groupEl);
+      });
+
+      updateCartBar(totalWays, minOdds, maxOdds);
+    }
+
+    // ===== SelectionCartBar ẩn/hiện (isSelectedVote) =====
+    function updateCartBar(ways, minOdds, maxOdds) {
+      const bar = document.getElementById('cartBar');
+      if (ways <= 0) { bar.hidden = true; return; }
+      bar.hidden = false;
+      document.getElementById('cartWays').textContent = ways;
+      const lo = minOdds === Infinity ? '' : minOdds.toFixed(1);
+      const hi = maxOdds === -Infinity ? '' : maxOdds.toFixed(1);
+      document.getElementById('cartOdds').textContent = `${lo}~${hi}`;
+    }
+
+    function syncCheckboxes() {
+      document.querySelectorAll('.cb').forEach(cb => {
+        if (cb.classList.contains('disabled')) return;
+        cb.classList.toggle('checked', selected[+cb.dataset.col].has(+cb.dataset.horse));
+      });
+      document.querySelectorAll('.horse-row').forEach(row => {
+        if (row.classList.contains('cancel')) return;
+        const horse = +row.dataset.horse;
+        const on = selected[1].has(horse) || selected[2].has(horse) || selected[3].has(horse);
+        row.classList.toggle('selected', on);
+      });
+      document.querySelectorAll('.brd-btn.select-all').forEach(btn => {
+        const col = +btn.dataset.col;
+        const total = allHorseNos().length;
+        const isAll = total > 0 && selected[col].size === total;
+        btn.classList.toggle('on', isAll);
+        btn.textContent = isAll ? '消' : '全';
+      });
+    }
+
+    // Đồng bộ toàn bộ: bảng + odds list + cart bar
+    function syncAll() { syncCheckboxes(); renderOddsList(); }
+
+    // ===== Sự kiện =====
+    document.getElementById('betTypes').addEventListener('click', e => {
+      const btn = e.target.closest('.bet-btn');
+      if (!btn || btn.classList.contains('disabled')) return;
+      const bet = btn.dataset.bet;
+      const on = btn.classList.toggle('selected');
+      let check = btn.querySelector('.check');
+      if (on && !check) {
+        check = document.createElement('span');
+        check.className = 'check'; check.innerHTML = '&#10003;';
+        btn.prepend(check);
+      }
+      const idx = selectedBets.indexOf(bet);
+      if (on && idx < 0) selectedBets.push(bet);
+      if (!on && idx >= 0) selectedBets.splice(idx, 1);
+      renderOddsList();
+    });
+
+    document.getElementById('multiSwitch').addEventListener('click', function () { this.classList.toggle('on'); });
+
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      selected[1].clear(); selected[2].clear(); selected[3].clear();
+      syncAll();
+    });
+
+    document.querySelectorAll('.brd-btn.select-all').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const col = +btn.dataset.col;
+        const all = allHorseNos();
+        if (selected[col].size === all.length) selected[col].clear();
+        else all.forEach(n => selected[col].add(n));
+        syncAll();
+      });
+    });
+
+    // Sort 3 trạng thái (getSortButtonConfiguration)
+    const SORT_LABELS = ['番号順', 'オッズの高い順', 'オッズの低い順'];
+    document.getElementById('sortBtn').addEventListener('click', () => {
+      sortId = (sortId + 1) % 3;
+      document.getElementById('sortText').textContent = SORT_LABELS[sortId];
+      renderOddsList();
+    });
+
+    // Dropdown 投票種別 (VoteHeaderView + AppDropdownButton)
+    // Mỗi lựa chọn điều hướng qua deeplink odds-sop:// để app native intercept (BaseWebView.shouldOverrideUrlLoading)
+    // screenId tra theo lib/router/deeplink/deeplink_keiba.dart; li[data-idx] khớp KeibaVoteTypeTabs (keiba_vote_type_tabs.dart):
+    //   0=multitype(vote=2) 1=normal(vote=1) 2=odds(vote=3, KHÔNG ở lại trang vote — keiba_vote_view.dart điều hướng
+    //   sang KeibaRaceStartingList?tab=odds khi currentTab==odds) 3=multirace(vote=5)
+    const BET_DD_URLS = {
+      0: 'odds-sop://notification?action=1&screenId=CA109-38&joCd=03&kaisaiBi=20260721&raceNo=1', // 賭式まとめ投票 → /keiba/race/vote?vote=2
+      1: 'odds-sop://notification?action=1&screenId=CA109-01&joCd=03&kaisaiBi=20260721&raceNo=1', // 通常投票 → /keiba/race/vote?vote=1&bet=1
+      2: 'odds-sop://notification?action=1&screenId=CA107-01&joCd=03&kaisaiBi=20260721&raceNo=1', // オッズ投票 → /keiba/race/startingList?tab=odds&bet=1
+      3: 'odds-sop://notification?action=1&screenId=CA109-81&joCd=03&kaisaiBi=20260721&raceNo=1', // レースまとめ投票 → /keiba/race/vote?vote=5
+    };
+    const betDdBtn = document.getElementById('betDdBtn');
+    const betDdMenu = document.getElementById('betDdMenu');
+    const betDdText = document.getElementById('betDdText');
+    function setMenuOpen(open) { betDdMenu.hidden = !open; betDdBtn.classList.toggle('open', open); }
+    betDdBtn.addEventListener('click', e => { e.stopPropagation(); setMenuOpen(betDdMenu.hidden); });
+    betDdMenu.querySelectorAll('li').forEach(li => {
+      li.addEventListener('click', e => {
+        e.stopPropagation();
+        betDdMenu.querySelectorAll('li').forEach(x => x.classList.remove('selected'));
+        li.classList.add('selected');
+        betDdText.textContent = li.textContent.trim();
+        setMenuOpen(false);
+        const url = BET_DD_URLS[li.dataset.idx];
+        if (url) window.location.href = url;
+      });
+    });
+    document.addEventListener('click', () => setMenuOpen(false));
+
+    // ===== Init =====
+    renderTable();
+    selected[1].add(1); // mẫu: 1頭目 = 馬1
+    selected[2].add(3); // mẫu: 2頭目 = 馬3
+    syncAll();
+  </script>
+
+
+</body></html>
